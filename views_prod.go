@@ -36,6 +36,9 @@ func NewTemplateRenderer() *TemplateRenderer {
 }
 
 func (t *TemplateRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
+	if m, ok := data.(map[string]any); ok {
+		m["LiveReloadScript"] = c.Get("liveReloadScript")
+	}
 	return t.templates[name].ExecuteTemplate(w, "base", data)
 }
 
