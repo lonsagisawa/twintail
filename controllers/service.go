@@ -6,11 +6,16 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-type ServiceController struct {
-	tailscale *services.TailscaleService
+type TailscaleService interface {
+	GetServeStatus() ([]services.ServiceView, error)
+	AdvertiseService(params services.AdvertiseServiceParams) error
 }
 
-func NewServiceController(tailscale *services.TailscaleService) *ServiceController {
+type ServiceController struct {
+	tailscale TailscaleService
+}
+
+func NewServiceController(tailscale TailscaleService) *ServiceController {
 	return &ServiceController{
 		tailscale: tailscale,
 	}

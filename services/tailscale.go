@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+var execCommand = func(name string, arg ...string) interface {
+	Output() ([]byte, error)
+	CombinedOutput() ([]byte, error)
+} {
+	return exec.Command(name, arg...)
+}
+
 type Handler struct {
 	Proxy string `json:"Proxy,omitempty"`
 }
@@ -20,8 +27,8 @@ type TCPEntry struct {
 }
 
 type Service struct {
-	TCP map[string]TCPEntry  `json:"TCP"`
-	Web map[string]WebEntry  `json:"Web"`
+	TCP map[string]TCPEntry `json:"TCP"`
+	Web map[string]WebEntry `json:"Web"`
 }
 
 type ServeStatus struct {
@@ -41,7 +48,7 @@ func NewTailscaleService() *TailscaleService {
 }
 
 func (s *TailscaleService) GetServeStatus() ([]ServiceView, error) {
-	cmd := exec.Command("tailscale", "serve", "status", "--json")
+	cmd := execCommand("tailscale", "serve", "status", "--json")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -95,7 +102,7 @@ func (s *TailscaleService) AdvertiseService(params AdvertiseServiceParams) error
 		params.Destination,
 	}
 
-	cmd := exec.Command("tailscale", args...)
+	cmd := execCommand("tailscale", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return &AdvertiseError{
