@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="dark">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Twintail - Tailscale Serve Status</title>
     <link rel="stylesheet" href="/static/css/output.css">
 </head>
-<body class="min-h-screen bg-base-200 p-4 md:p-8">
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-base-content/80">Tailscale Serve Status</h1>
+<body class="min-h-screen p-4 md:p-8">
+    <h1 class="text-2xl md:text-3xl font-bold mb-6">Tailscale Serve Status</h1>
     {{if .Services}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {{range .Services}}
-        <div class="card bg-base-300 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card shadow-lg hover:shadow-xl transition-shadow">
             <div class="card-body">
                 <h2 class="card-title text-lg">{{.Name}}</h2>
-                <a class="link link-primary hover:underline break-all mb-2" href="{{.HTTPSUrl}}" target="_blank">{{.HTTPSUrl}}</a>
-                <p class="text-sm text-base-content/60">→ {{.Proxy}}</p>
+                <a class="link hover:underline break-all mb-2" href="{{.HTTPSUrl}}" target="_blank">{{.HTTPSUrl}}</a>
+                <p class="text-sm">→ {{.Proxy}}</p>
             </div>
         </div>
         {{end}}
     </div>
     {{else}}
-    <p class="text-base-content/60">No Services Found.</p>
+    <p>No Services Found.</p>
     {{end}}
     {{.LiveReloadScript}}
 </body>
