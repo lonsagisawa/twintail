@@ -90,7 +90,7 @@ type AdvertiseServiceParams struct {
 func (s *TailscaleService) AdvertiseService(params AdvertiseServiceParams) error {
 	args := []string{
 		"serve",
-		"--service=svc:", params.ServiceName,
+		"--service=svc:" + params.ServiceName,
 		"--" + params.Protocol + "=" + params.ExposePort,
 		params.Destination,
 	}
