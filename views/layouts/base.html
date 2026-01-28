@@ -1,0 +1,15 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twintail - {{template "title" .}}</title>
+    {{ viteTags "assets/main.ts" }}
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    {{template "content" .}}
+    {{.LiveReloadScript}}
+</body>
+</html>
+{{end}}

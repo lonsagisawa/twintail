@@ -2,7 +2,6 @@ package main
 
 import (
 	"html/template"
-	"io"
 	"os"
 
 	"twintail/controllers"
@@ -12,14 +11,6 @@ import (
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
-
-type Template struct {
-	templates *template.Template
-}
-
-func (t *Template) Render(c *echo.Context, w io.Writer, name string, data any) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
 
 func liveReloadMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -58,10 +49,7 @@ func main() {
 
 	setupLiveReload(e)
 
-	t := &Template{
-		templates: parseTemplates(),
-	}
-	e.Renderer = t
+	e.Renderer = parseTemplates()
 
 	tailscaleSvc := services.NewTailscaleService()
 	serviceCtrl := controllers.NewServiceController(tailscaleSvc)

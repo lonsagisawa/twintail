@@ -1,106 +1,98 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twintail - New Service</title>
-    {{ viteTags "assets/main.ts" }}
-</head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="max-w-2xl mx-auto">
-        <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold">Advertise New Service</h1>
-            <a href="/" class="btn btn-ghost btn-sm">← Back</a>
-        </div>
+{{define "title"}}New Service{{end}}
 
-        {{if .Error}}
-        <div class="alert alert-error mb-4">
-            <span>{{.Error}}</span>
-        </div>
-        {{end}}
+{{define "content"}}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold">Advertise New Service</h1>
+        <a href="/" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
 
-        {{if .Success}}
-        <div class="alert alert-success mb-4">
-            <span>{{.Success}}</span>
-        </div>
-        {{end}}
+    {{if .Error}}
+    <div class="alert alert-error mb-4">
+        <span>{{.Error}}</span>
+    </div>
+    {{end}}
 
-        <div class="card bg-base-100 shadow-lg">
-            <div class="card-body">
-                <form method="POST" action="/services/new">
-                    <div class="form-control mb-4">
-                        <label class="label">
-                            <span class="label-text font-semibold">Service Name</span>
-                        </label>
-                        <input type="text" name="service_name" placeholder="my-web-app" 
-                               class="input input-bordered w-full" required
-                               value="{{.FormData.ServiceName}}"
-                               pattern="[a-zA-Z0-9\-]+" title="Only alphanumeric characters and hyphens allowed">
-                        <label class="label">
-                            <span class="label-text-alt">Tailscale Admin Consoleで定義したService名</span>
-                        </label>
-                    </div>
+    {{if .Success}}
+    <div class="alert alert-success mb-4">
+        <span>{{.Success}}</span>
+    </div>
+    {{end}}
 
-                    <div class="form-control mb-4">
-                        <label class="label">
-                            <span class="label-text font-semibold">Protocol</span>
-                        </label>
-                        <select name="protocol" class="select select-bordered w-full">
-                            <option value="https" {{if eq .FormData.Protocol "https"}}selected{{end}}>HTTPS (TLS termination)</option>
-                            <option value="http" {{if eq .FormData.Protocol "http"}}selected{{end}}>HTTP</option>
-                        </select>
-                    </div>
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <form method="POST" action="/services/new">
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Service Name</span>
+                    </label>
+                    <input type="text" name="service_name" placeholder="my-web-app" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.ServiceName}}"
+                           pattern="[a-zA-Z0-9\-]+" title="Only alphanumeric characters and hyphens allowed">
+                    <label class="label">
+                        <span class="label-text-alt">Tailscale Admin Consoleで定義したService名</span>
+                    </label>
+                </div>
 
-                    <div class="form-control mb-4">
-                        <label class="label">
-                            <span class="label-text font-semibold">Expose Port</span>
-                        </label>
-                        <input type="number" name="expose_port" placeholder="443" 
-                               class="input input-bordered w-full" required
-                               value="{{.FormData.ExposePort}}"
-                               min="1" max="65535">
-                        <label class="label">
-                            <span class="label-text-alt">外部に公開するポート番号</span>
-                        </label>
-                    </div>
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Protocol</span>
+                    </label>
+                    <select name="protocol" class="select select-bordered w-full">
+                        <option value="https" {{if eq .FormData.Protocol "https"}}selected{{end}}>HTTPS (TLS termination)</option>
+                        <option value="http" {{if eq .FormData.Protocol "http"}}selected{{end}}>HTTP</option>
+                    </select>
+                </div>
 
-                    <div class="form-control mb-6">
-                        <label class="label">
-                            <span class="label-text font-semibold">Local Destination</span>
-                        </label>
-                        <input type="text" name="destination" placeholder="http://localhost:8080" 
-                               class="input input-bordered w-full" required
-                               value="{{.FormData.Destination}}">
-                        <label class="label">
-                            <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080, tcp://localhost:5432)</span>
-                        </label>
-                    </div>
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Expose Port</span>
+                    </label>
+                    <input type="number" name="expose_port" placeholder="443" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.ExposePort}}"
+                           min="1" max="65535">
+                    <label class="label">
+                        <span class="label-text-alt">外部に公開するポート番号</span>
+                    </label>
+                </div>
 
-                    <div class="card-actions justify-end">
-                        <button type="submit" class="btn btn-primary">Advertise Service</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Local Destination</span>
+                    </label>
+                    <input type="text" name="destination" placeholder="http://localhost:8080" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.Destination}}">
+                    <label class="label">
+                        <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080, tcp://localhost:5432)</span>
+                    </label>
+                </div>
 
-        <div class="mt-6 p-4 bg-base-200 rounded-lg">
-            <h3 class="font-semibold mb-2">Note</h3>
-            <p class="text-sm opacity-70">
-                Serviceは事前にTailscale Admin Consoleで定義しておく必要があります。
-                このツールは <code>tailscale serve --service</code> コマンドを実行してエンドポイントをadvertiseします。
-            </p>
+                <div class="card-actions justify-end">
+                    <button type="submit" class="btn btn-primary">Advertise Service</button>
+                </div>
+            </form>
         </div>
     </div>
-    <script>
-        document.querySelector('select[name="protocol"]').addEventListener('change', function() {
-            const portInput = document.querySelector('input[name="expose_port"]');
-            if (this.value === 'https') {
-                portInput.value = '443';
-            } else if (this.value === 'http') {
-                portInput.value = '80';
-            }
-        });
-    </script>
-    {{.LiveReloadScript}}
-</body>
-</html>
+
+    <div class="mt-6 p-4 bg-base-200 rounded-lg">
+        <h3 class="font-semibold mb-2">Note</h3>
+        <p class="text-sm opacity-70">
+            Serviceは事前にTailscale Admin Consoleで定義しておく必要があります。
+            このツールは <code>tailscale serve --service</code> コマンドを実行してエンドポイントをadvertiseします。
+        </p>
+    </div>
+</div>
+<script>
+    document.querySelector('select[name="protocol"]').addEventListener('change', function() {
+        const portInput = document.querySelector('input[name="expose_port"]');
+        if (this.value === 'https') {
+            portInput.value = '443';
+        } else if (this.value === 'http') {
+            portInput.value = '80';
+        }
+    });
+</script>
+{{end}}

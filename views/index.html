@@ -1,31 +1,23 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twintail - Tailscale Serve Status</title>
-    {{ viteTags "assets/main.ts" }}
-</head>
-<body class="min-h-screen p-4 md:p-8">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold">Tailscale Serve Status</h1>
-        <a href="/services/new" class="btn btn-primary btn-sm">+ New Service</a>
-    </div>
-    {{if .Services}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {{range .Services}}
-        <div class="card shadow-lg hover:shadow-xl transition-shadow">
-            <div class="card-body">
-                <h2 class="card-title text-lg">{{.Name}}</h2>
-                <a class="link hover:underline break-all mb-2" href="{{.HTTPSUrl}}" target="_blank">{{.HTTPSUrl}}</a>
-                <p class="text-sm">→ {{.Proxy}}</p>
-            </div>
+{{define "title"}}Tailscale Serve Status{{end}}
+
+{{define "content"}}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl md:text-3xl font-bold">Tailscale Serve Status</h1>
+    <a href="/services/new" class="btn btn-primary btn-sm">+ New Service</a>
+</div>
+{{if .Services}}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {{range .Services}}
+    <div class="card shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+            <h2 class="card-title text-lg">{{.Name}}</h2>
+            <a class="link hover:underline break-all mb-2" href="{{.HTTPSUrl}}" target="_blank">{{.HTTPSUrl}}</a>
+            <p class="text-sm">→ {{.Proxy}}</p>
         </div>
-        {{end}}
     </div>
-    {{else}}
-    <p>No Services Found.</p>
     {{end}}
-    {{.LiveReloadScript}}
-</body>
-</html>
+</div>
+{{else}}
+<p>No Services Found.</p>
+{{end}}
+{{end}}
