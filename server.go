@@ -30,6 +30,19 @@ func liveReloadMiddleware() echo.MiddlewareFunc {
 	}
 }
 
+func noCacheMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			if noCacheEnabled() {
+				c.Response().Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+				c.Response().Header().Set("Pragma", "no-cache")
+				c.Response().Header().Set("Expires", "0")
+			}
+			return next(c)
+		}
+	}
+}
+
 func main() {
 	_ = godotenv.Load()
 
@@ -41,6 +54,7 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.RequestLogger())
 	e.Use(liveReloadMiddleware())
+	e.Use(noCacheMiddleware())
 
 	setupLiveReload(e)
 

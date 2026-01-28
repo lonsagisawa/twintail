@@ -10,3 +10,7 @@ import (
 func getStaticFS() fs.FS {
 	return os.DirFS("static")
 }
+
+func noCacheEnabled() bool {
+	return true
+}

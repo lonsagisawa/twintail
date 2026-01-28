@@ -14,3 +14,7 @@ func getStaticFS() fs.FS {
 	sub, _ := fs.Sub(staticFS, "static")
 	return sub
 }
+
+func noCacheEnabled() bool {
+	return false
+}
