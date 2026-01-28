@@ -1,7 +1,12 @@
 .PHONY: build build-css install-deps clean dev
 
-build: build-css
-	go build -tags prod -o twintail
+build: build-css build-linux-amd64 build-linux-arm64
+
+build-linux-amd64:
+	GOOS=linux GOARCH=amd64 go build -tags prod -ldflags="-s -w" -o twintail-linux-amd64
+
+build-linux-arm64:
+	GOOS=linux GOARCH=arm64 go build -tags prod -ldflags="-s -w" -o twintail-linux-arm64
 
 build-css:
 	npm run build-css
@@ -19,4 +24,4 @@ install-deps:
 	go install github.com/air-verse/air@latest
 
 clean:
-	rm -f twintail
+	rm -f twintail-linux-amd64 twintail-linux-arm64
