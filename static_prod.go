@@ -7,7 +7,7 @@ import (
 	"io/fs"
 )
 
-//go:embed static
+//go:embed static all:static/dist
 var staticFS embed.FS
 
 func getStaticFS() fs.FS {
