@@ -35,7 +35,8 @@ go.work.sum
 static/css/output.css
 
 # Node.js
-node_modules/
+node_modules
+static/dist/
 
 # Build artifacts
 twintail

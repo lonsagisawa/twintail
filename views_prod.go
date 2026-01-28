@@ -11,5 +11,9 @@ import (
 var viewsFS embed.FS
 
 func parseTemplates() *template.Template {
-	return template.Must(template.ParseFS(viewsFS, "views/*.html"))
+	return template.Must(template.New("").
+		Funcs(template.FuncMap{
+			"viteTags": ViteTags,
+		}).
+		ParseFS(viewsFS, "views/*.html"))
 }

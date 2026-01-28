@@ -7,5 +7,9 @@ import (
 )
 
 func parseTemplates() *template.Template {
-	return template.Must(template.ParseGlob("views/*.html"))
+	return template.Must(template.New("").
+		Funcs(template.FuncMap{
+			"viteTags": ViteTags,
+		}).
+		ParseGlob("views/*.html"))
 }
