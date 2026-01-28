@@ -67,6 +67,8 @@ func main() {
 	serviceCtrl := controllers.NewServiceController(tailscaleSvc)
 
 	e.GET("/", serviceCtrl.Index)
+	e.GET("/services/new", serviceCtrl.NewServiceForm)
+	e.POST("/services/new", serviceCtrl.CreateService)
 
 	e.StaticFS("/static", getStaticFS())
 

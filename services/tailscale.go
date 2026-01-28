@@ -79,3 +79,41 @@ func (s *TailscaleService) GetServeStatus() ([]ServiceView, error) {
 
 	return services, nil
 }
+
+type AdvertiseServiceParams struct {
+	ServiceName string
+	Protocol    string
+	ExposePort  string
+	Destination string
+}
+
+func (s *TailscaleService) AdvertiseService(params AdvertiseServiceParams) error {
+	args := []string{
+		"serve",
+		"--service=svc:", params.ServiceName,
+		"--" + params.Protocol + "=" + params.ExposePort,
+		params.Destination,
+	}
+
+	cmd := exec.Command("tailscale", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return &AdvertiseError{
+			Message: string(output),
+			Err:     err,
+		}
+	}
+	return nil
+}
+
+type AdvertiseError struct {
+	Message string
+	Err     error
+}
+
+func (e *AdvertiseError) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+	return e.Err.Error()
+}
