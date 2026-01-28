@@ -38,6 +38,7 @@ static/css/output.css
 node_modules/
 
 # Build artifacts
+twintail
 twintail-linux-amd64
 twintail-linux-arm64
 
