@@ -12,7 +12,7 @@
 *.test
 
 # Code coverage profiles and other test artifacts
-*.out
+.out
 coverage.*
 *.coverprofile
 profile.cov
@@ -30,3 +30,9 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Tailwind CSS
+static/css/output.css
+
+# Node.js
+node_modules/
