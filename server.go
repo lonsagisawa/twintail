@@ -3,10 +3,12 @@ package main
 import (
 	"html/template"
 	"io"
+	"os"
 
 	"twintail/controllers"
 	"twintail/services"
 
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
@@ -29,6 +31,13 @@ func liveReloadMiddleware() echo.MiddlewareFunc {
 }
 
 func main() {
+	_ = godotenv.Load()
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8077"
+	}
+
 	e := echo.New()
 	e.Use(middleware.RequestLogger())
 	e.Use(liveReloadMiddleware())
@@ -47,7 +56,7 @@ func main() {
 
 	e.StaticFS("/static", getStaticFS())
 
-	if err := e.Start(":8077"); err != nil {
+	if err := e.Start(":" + port); err != nil {
 		e.Logger.Error("failed to start server", "error", err)
 	}
 }
