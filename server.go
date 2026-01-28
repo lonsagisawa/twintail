@@ -45,7 +45,7 @@ func main() {
 	setupLiveReload(e)
 
 	t := &Template{
-		templates: template.Must(template.ParseGlob("views/*.html")),
+		templates: parseTemplates(),
 	}
 	e.Renderer = t
 
