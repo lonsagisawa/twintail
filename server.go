@@ -63,6 +63,8 @@ func main() {
 	e.POST("/services/:name/delete", serviceCtrl.Destroy)
 	e.GET("/services/:name/endpoints/new", endpointCtrl.Create)
 	e.POST("/services/:name/endpoints/new", endpointCtrl.Store)
+	e.GET("/services/:name/endpoints/edit", endpointCtrl.Edit)
+	e.POST("/services/:name/endpoints/edit", endpointCtrl.Update)
 	e.GET("/services/:name/endpoints/delete", endpointCtrl.Delete)
 	e.POST("/services/:name/endpoints/delete", endpointCtrl.Destroy)
 

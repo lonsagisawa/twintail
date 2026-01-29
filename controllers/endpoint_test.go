@@ -28,6 +28,10 @@ func (m *mockEndpointService) RemoveEndpoint(params services.EndpointParams) err
 	return m.endpointErr
 }
 
+func (m *mockEndpointService) UpdateEndpoint(params services.UpdateEndpointParams) error {
+	return m.endpointErr
+}
+
 func TestEndpointCreate(t *testing.T) {
 	mockSvc := &mockEndpointService{}
 	ctrl := NewEndpointController(mockSvc)

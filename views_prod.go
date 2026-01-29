@@ -6,6 +6,8 @@ import (
 	"embed"
 	"html/template"
 	"io"
+	"io/fs"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 )
@@ -25,9 +27,17 @@ func NewTemplateRenderer() *TemplateRenderer {
 	base := template.Must(template.New("").Funcs(funcs).ParseFS(viewsFS, "views/layouts/*.html"))
 
 	templates := make(map[string]*template.Template)
-	pages := []string{"index.html", "new_service.html", "show_service.html", "confirm_delete.html"}
 
-	for _, page := range pages {
+	entries, err := fs.ReadDir(viewsFS, "views")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".html") {
+			continue
+		}
+		page := entry.Name()
 		tmpl := template.Must(template.Must(base.Clone()).ParseFS(viewsFS, "views/"+page))
 		templates[page] = tmpl
 	}

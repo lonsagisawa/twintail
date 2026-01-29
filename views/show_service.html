@@ -43,7 +43,9 @@
                             <td class="uppercase">{{.Protocol}}</td>
                             <td>{{.ExposePort}}</td>
                             <td><code>{{.Destination}}</code></td>
-                            <td>
+                            <td class="flex gap-1">
+                                <a href="/services/{{$.Service.Name}}/endpoints/edit?protocol={{.Protocol}}&port={{.ExposePort}}&destination={{.Destination}}" 
+                                   class="btn btn-ghost btn-xs">Edit</a>
                                 <a href="/services/{{$.Service.Name}}/endpoints/delete?protocol={{.Protocol}}&port={{.ExposePort}}&destination={{.Destination}}" 
                                    class="btn btn-error btn-xs">Delete</a>
                             </td>

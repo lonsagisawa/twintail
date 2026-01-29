@@ -10,6 +10,7 @@ type EndpointService interface {
 	GetServiceByName(name string) (*services.ServiceDetailView, error)
 	AddEndpoint(params services.EndpointParams) error
 	RemoveEndpoint(params services.EndpointParams) error
+	UpdateEndpoint(params services.UpdateEndpointParams) error
 }
 
 type EndpointController struct {
@@ -92,6 +93,58 @@ func (c *EndpointController) Destroy(ctx *echo.Context) error {
 	svc, _ := c.tailscale.GetServiceByName(name)
 	if svc == nil {
 		return ctx.Redirect(303, "/")
+	}
+
+	return ctx.Redirect(303, "/services/"+name)
+}
+
+type EditEndpointFormData struct {
+	Protocol       string
+	ExposePort     string
+	OldDestination string
+	NewDestination string
+}
+
+func (c *EndpointController) Edit(ctx *echo.Context) error {
+	name := ctx.Param("name")
+	protocol := ctx.QueryParam("protocol")
+	exposePort := ctx.QueryParam("port")
+	destination := ctx.QueryParam("destination")
+
+	return ctx.Render(200, "edit_endpoint.html", map[string]any{
+		"ServiceName": name,
+		"FormData": EditEndpointFormData{
+			Protocol:       protocol,
+			ExposePort:     exposePort,
+			OldDestination: destination,
+			NewDestination: destination,
+		},
+	})
+}
+
+func (c *EndpointController) Update(ctx *echo.Context) error {
+	name := ctx.Param("name")
+	formData := EditEndpointFormData{
+		Protocol:       ctx.FormValue("protocol"),
+		ExposePort:     ctx.FormValue("expose_port"),
+		OldDestination: ctx.FormValue("old_destination"),
+		NewDestination: ctx.FormValue("new_destination"),
+	}
+
+	params := services.UpdateEndpointParams{
+		ServiceName:    name,
+		Protocol:       formData.Protocol,
+		ExposePort:     formData.ExposePort,
+		OldDestination: formData.OldDestination,
+		NewDestination: formData.NewDestination,
+	}
+
+	if err := c.tailscale.UpdateEndpoint(params); err != nil {
+		return ctx.Render(200, "edit_endpoint.html", map[string]any{
+			"ServiceName": name,
+			"Error":       err.Error(),
+			"FormData":    formData,
+		})
 	}
 
 	return ctx.Redirect(303, "/services/"+name)

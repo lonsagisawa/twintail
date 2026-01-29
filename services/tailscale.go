@@ -287,3 +287,31 @@ func (s *TailscaleService) RemoveEndpoint(params EndpointParams) error {
 	}
 	return nil
 }
+
+type UpdateEndpointParams struct {
+	ServiceName    string
+	Protocol       string
+	ExposePort     string
+	OldDestination string
+	NewDestination string
+}
+
+func (s *TailscaleService) UpdateEndpoint(params UpdateEndpointParams) error {
+	removeParams := EndpointParams{
+		ServiceName: params.ServiceName,
+		Protocol:    params.Protocol,
+		ExposePort:  params.ExposePort,
+		Destination: params.OldDestination,
+	}
+	if err := s.RemoveEndpoint(removeParams); err != nil {
+		return err
+	}
+
+	addParams := EndpointParams{
+		ServiceName: params.ServiceName,
+		Protocol:    params.Protocol,
+		ExposePort:  params.ExposePort,
+		Destination: params.NewDestination,
+	}
+	return s.AddEndpoint(addParams)
+}

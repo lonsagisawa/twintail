@@ -1,0 +1,66 @@
+{{define "title"}}Edit Endpoint: {{.ServiceName}}{{end}}
+
+{{define "content"}}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold">Edit Endpoint</h1>
+        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
+
+    {{if .Error}}
+    <div class="alert alert-error mb-4">
+        <span>{{.Error}}</span>
+    </div>
+    {{end}}
+
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <form method="POST" action="/services/{{.ServiceName}}/endpoints/edit">
+                <input type="hidden" name="protocol" value="{{.FormData.Protocol}}">
+                <input type="hidden" name="expose_port" value="{{.FormData.ExposePort}}">
+                <input type="hidden" name="old_destination" value="{{.FormData.OldDestination}}">
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Service Name</span>
+                    </label>
+                    <input type="text" class="input input-bordered w-full bg-base-200" 
+                           value="{{.ServiceName}}" disabled>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Protocol</span>
+                    </label>
+                    <input type="text" class="input input-bordered w-full bg-base-200 uppercase" 
+                           value="{{.FormData.Protocol}}" disabled>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Expose Port</span>
+                    </label>
+                    <input type="text" class="input input-bordered w-full bg-base-200" 
+                           value="{{.FormData.ExposePort}}" disabled>
+                </div>
+
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Local Destination</span>
+                    </label>
+                    <input type="text" name="new_destination" placeholder="http://localhost:8080" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.NewDestination}}">
+                    <label class="label">
+                        <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080)</span>
+                    </label>
+                </div>
+
+                <div class="card-actions justify-end">
+                    <button type="submit" class="btn btn-primary">Update Endpoint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{{end}}
