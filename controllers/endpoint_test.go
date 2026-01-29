@@ -90,13 +90,13 @@ func TestEndpointStore_Failure(t *testing.T) {
 	}
 }
 
-func TestEndpointConfirmDelete(t *testing.T) {
+func TestEndpointDelete(t *testing.T) {
 	mockSvc := &mockEndpointService{}
 	ctrl := NewEndpointController(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
-	e.GET("/services/:name/endpoints/delete", ctrl.ConfirmDelete)
+	e.GET("/services/:name/endpoints/delete", ctrl.Delete)
 
 	req := httptest.NewRequest(http.MethodGet, "/services/my-service/endpoints/delete?protocol=https&port=443&destination=http://localhost:8080", nil)
 	rec := httptest.NewRecorder()

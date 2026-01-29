@@ -85,7 +85,7 @@ func (c *ServiceController) Show(ctx *echo.Context) error {
 	})
 }
 
-func (c *ServiceController) ConfirmDelete(ctx *echo.Context) error {
+func (c *ServiceController) Delete(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	svc, err := c.tailscale.GetServiceByName(name)
 	if err != nil {

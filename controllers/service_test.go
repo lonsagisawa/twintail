@@ -204,7 +204,7 @@ func TestShow_NotFound(t *testing.T) {
 	}
 }
 
-func TestConfirmDelete_Success(t *testing.T) {
+func TestDelete_Success(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		serviceDetail: &services.ServiceDetailView{
 			Name:     "web-app",
@@ -216,7 +216,7 @@ func TestConfirmDelete_Success(t *testing.T) {
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
-	e.GET("/services/:name/delete", ctrl.ConfirmDelete)
+	e.GET("/services/:name/delete", ctrl.Delete)
 
 	req := httptest.NewRequest(http.MethodGet, "/services/web-app/delete", nil)
 	rec := httptest.NewRecorder()
@@ -227,7 +227,7 @@ func TestConfirmDelete_Success(t *testing.T) {
 	}
 }
 
-func TestConfirmDelete_NotFound(t *testing.T) {
+func TestDelete_NotFound(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		serviceDetail: nil,
 	}
@@ -235,7 +235,7 @@ func TestConfirmDelete_NotFound(t *testing.T) {
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
-	e.GET("/services/:name/delete", ctrl.ConfirmDelete)
+	e.GET("/services/:name/delete", ctrl.Delete)
 
 	req := httptest.NewRequest(http.MethodGet, "/services/nonexistent/delete", nil)
 	rec := httptest.NewRecorder()

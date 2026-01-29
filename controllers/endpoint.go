@@ -62,7 +62,7 @@ func (c *EndpointController) Store(ctx *echo.Context) error {
 	return ctx.Redirect(303, "/services/"+name)
 }
 
-func (c *EndpointController) ConfirmDelete(ctx *echo.Context) error {
+func (c *EndpointController) Delete(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
