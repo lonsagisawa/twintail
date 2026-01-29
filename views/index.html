@@ -11,8 +11,14 @@
     <a href="/services/{{.Name}}" class="card shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
         <div class="card-body">
             <h2 class="card-title text-lg">{{.Name}}</h2>
+            {{if .HTTPSUrl}}
             <p class="link break-all mb-2">{{.HTTPSUrl}}</p>
+            {{else if .HTTPUrl}}
+            <p class="link break-all mb-2">{{.HTTPUrl}}</p>
+            {{end}}
+            {{if .Proxy}}
             <p class="text-sm">→ {{.Proxy}}</p>
+            {{end}}
         </div>
     </a>
     {{end}}

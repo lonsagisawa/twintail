@@ -38,6 +38,7 @@ type ServeStatus struct {
 type ServiceView struct {
 	Name     string
 	HTTPSUrl string
+	HTTPUrl  string
 	Proxy    string
 }
 
@@ -75,24 +76,35 @@ func (s *TailscaleService) GetServeStatus() ([]ServiceView, error) {
 	var services []ServiceView
 	for name, svc := range status.Services {
 		displayName := strings.TrimPrefix(name, "svc:")
-		var httpsUrl, proxy string
+		var httpsUrl, httpUrl, proxy string
 
 		for host, web := range svc.Web {
-			if strings.Contains(host, ":443") {
-				httpsUrl = "https://" + strings.TrimSuffix(host, ":443")
-				for _, handler := range web.Handlers {
-					if handler.Proxy != "" {
-						proxy = handler.Proxy
-						break
-					}
+			parts := strings.Split(host, ":")
+			if len(parts) != 2 {
+				continue
+			}
+			hostname := parts[0]
+			port := parts[1]
+
+			for _, handler := range web.Handlers {
+				if handler.Proxy != "" && proxy == "" {
+					proxy = handler.Proxy
 				}
-				break
+			}
+
+			if port == "443" {
+				httpsUrl = "https://" + hostname
+			} else if port == "80" {
+				httpUrl = "http://" + hostname
+			} else {
+				httpUrl = "http://" + hostname + ":" + port
 			}
 		}
 
 		services = append(services, ServiceView{
 			Name:     displayName,
 			HTTPSUrl: httpsUrl,
+			HTTPUrl:  httpUrl,
 			Proxy:    proxy,
 		})
 	}
