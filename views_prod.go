@@ -25,7 +25,7 @@ func NewTemplateRenderer() *TemplateRenderer {
 	base := template.Must(template.New("").Funcs(funcs).ParseFS(viewsFS, "views/layouts/*.html"))
 
 	templates := make(map[string]*template.Template)
-	pages := []string{"index.html", "new_service.html"}
+	pages := []string{"index.html", "new_service.html", "show_service.html", "confirm_delete.html"}
 
 	for _, page := range pages {
 		tmpl := template.Must(template.Must(base.Clone()).ParseFS(viewsFS, "views/"+page))
