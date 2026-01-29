@@ -229,3 +229,61 @@ func (e *ClearError) Error() string {
 	}
 	return e.Err.Error()
 }
+
+type EndpointParams struct {
+	ServiceName string
+	Protocol    string
+	ExposePort  string
+	Destination string
+}
+
+type EndpointError struct {
+	Message string
+	Err     error
+}
+
+func (e *EndpointError) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+	return e.Err.Error()
+}
+
+func (s *TailscaleService) AddEndpoint(params EndpointParams) error {
+	args := []string{
+		"serve",
+		"--service=svc:" + params.ServiceName,
+		"--" + params.Protocol + "=" + params.ExposePort,
+		params.Destination,
+	}
+
+	cmd := execCommand("tailscale", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return &EndpointError{
+			Message: string(output),
+			Err:     err,
+		}
+	}
+	return nil
+}
+
+func (s *TailscaleService) RemoveEndpoint(params EndpointParams) error {
+	args := []string{
+		"serve",
+		"--service=svc:" + params.ServiceName,
+		"--" + params.Protocol + "=" + params.ExposePort,
+		params.Destination,
+		"off",
+	}
+
+	cmd := execCommand("tailscale", args...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return &EndpointError{
+			Message: string(output),
+			Err:     err,
+		}
+	}
+	return nil
+}

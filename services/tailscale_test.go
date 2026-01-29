@@ -539,3 +539,157 @@ func TestClearService_Failure(t *testing.T) {
 		t.Errorf("expected message 'clear failed', got '%s'", clearErr.Message)
 	}
 }
+
+var mockRemoveEndpointError error
+var capturedRemoveArgs []string
+
+func setupMockExecCommandWithEndpoint() func() {
+	oldExecCommand := execCommand
+	execCommand = func(name string, args ...string) interface {
+		Output() ([]byte, error)
+		CombinedOutput() ([]byte, error)
+	} {
+		argsStr := strings.Join(args, " ")
+		switch {
+		case strings.Contains(argsStr, "serve status"):
+			if mockServeOutput != nil {
+				return &mockCmd{output: mockServeOutput}
+			}
+			return &mockCmd{output: []byte(`{"Services": {}}`)}
+		case strings.Contains(argsStr, "serve --service=") && strings.Contains(argsStr, " off"):
+			capturedRemoveArgs = args
+			if mockRemoveEndpointError != nil {
+				return &mockCmd{err: mockRemoveEndpointError, output: []byte("remove failed")}
+			}
+			return &mockCmd{output: []byte("success")}
+		case strings.Contains(argsStr, "serve --service="):
+			if mockAdvertiseError != nil {
+				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			}
+			return &mockCmd{output: []byte("success")}
+		case strings.Contains(argsStr, "serve clear"):
+			if mockClearError != nil {
+				return &mockCmd{err: mockClearError, output: []byte("clear failed")}
+			}
+			return &mockCmd{output: []byte("success")}
+		}
+		return &mockCmd{err: errors.New("unexpected command")}
+	}
+	return func() { execCommand = oldExecCommand }
+}
+
+func TestAddEndpoint_Success(t *testing.T) {
+	mockAdvertiseError = nil
+	defer func() {
+		mockAdvertiseError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := EndpointParams{
+		ServiceName: "my-service",
+		Protocol:    "https",
+		ExposePort:  "443",
+		Destination: "http://localhost:8080",
+	}
+	err := svc.AddEndpoint(params)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestAddEndpoint_Failure(t *testing.T) {
+	mockAdvertiseError = errors.New("command failed")
+	defer func() {
+		mockAdvertiseError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := EndpointParams{
+		ServiceName: "my-service",
+		Protocol:    "https",
+		ExposePort:  "443",
+		Destination: "http://localhost:8080",
+	}
+	err := svc.AddEndpoint(params)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	endpointErr, ok := err.(*EndpointError)
+	if !ok {
+		t.Fatalf("expected EndpointError, got %T", err)
+	}
+	if endpointErr.Message != "command failed" {
+		t.Errorf("expected message 'command failed', got '%s'", endpointErr.Message)
+	}
+}
+
+func TestRemoveEndpoint_Success(t *testing.T) {
+	mockRemoveEndpointError = nil
+	capturedRemoveArgs = nil
+	defer func() {
+		mockRemoveEndpointError = nil
+		capturedRemoveArgs = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := EndpointParams{
+		ServiceName: "my-service",
+		Protocol:    "https",
+		ExposePort:  "443",
+		Destination: "http://localhost:8080",
+	}
+	err := svc.RemoveEndpoint(params)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if capturedRemoveArgs == nil {
+		t.Fatal("expected command to be called")
+	}
+	argsStr := strings.Join(capturedRemoveArgs, " ")
+	if !strings.Contains(argsStr, "--service=svc:my-service") {
+		t.Errorf("expected args to contain '--service=svc:my-service', got '%s'", argsStr)
+	}
+	if !strings.Contains(argsStr, "--https=443") {
+		t.Errorf("expected args to contain '--https=443', got '%s'", argsStr)
+	}
+	if !strings.Contains(argsStr, "off") {
+		t.Errorf("expected args to contain 'off', got '%s'", argsStr)
+	}
+}
+
+func TestRemoveEndpoint_Failure(t *testing.T) {
+	mockRemoveEndpointError = errors.New("remove failed")
+	defer func() {
+		mockRemoveEndpointError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := EndpointParams{
+		ServiceName: "my-service",
+		Protocol:    "https",
+		ExposePort:  "443",
+		Destination: "http://localhost:8080",
+	}
+	err := svc.RemoveEndpoint(params)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	endpointErr, ok := err.(*EndpointError)
+	if !ok {
+		t.Fatalf("expected EndpointError, got %T", err)
+	}
+	if endpointErr.Message != "remove failed" {
+		t.Errorf("expected message 'remove failed', got '%s'", endpointErr.Message)
+	}
+}
