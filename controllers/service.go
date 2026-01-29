@@ -6,11 +6,16 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-type ServiceController struct {
-	tailscale *services.TailscaleService
+type TailscaleService interface {
+	GetServeStatus() ([]services.ServiceView, error)
+	AdvertiseService(params services.AdvertiseServiceParams) error
 }
 
-func NewServiceController(tailscale *services.TailscaleService) *ServiceController {
+type ServiceController struct {
+	tailscale TailscaleService
+}
+
+func NewServiceController(tailscale TailscaleService) *ServiceController {
 	return &ServiceController{
 		tailscale: tailscale,
 	}
@@ -33,13 +38,13 @@ type NewServiceFormData struct {
 	Destination string
 }
 
-func (c *ServiceController) NewServiceForm(ctx *echo.Context) error {
+func (c *ServiceController) Create(ctx *echo.Context) error {
 	return ctx.Render(200, "new_service.html", map[string]any{
 		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
 	})
 }
 
-func (c *ServiceController) CreateService(ctx *echo.Context) error {
+func (c *ServiceController) Store(ctx *echo.Context) error {
 	formData := NewServiceFormData{
 		ServiceName: ctx.FormValue("service_name"),
 		Protocol:    ctx.FormValue("protocol"),

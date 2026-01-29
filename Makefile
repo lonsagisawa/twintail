@@ -1,4 +1,4 @@
-.PHONY: build build-frontend install-deps clean dev
+.PHONY: build build-frontend install-deps clean dev test test-coverage
 
 build: build-frontend build-linux-amd64 build-linux-arm64
 
@@ -23,3 +23,9 @@ install-deps:
 clean:
 	rm -f twintail-linux-amd64 twintail-linux-arm64
 	rm -rf static/dist
+
+test:
+	go test -v ./...
+
+test-coverage:
+	go test -cover ./...
