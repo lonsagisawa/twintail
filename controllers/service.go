@@ -38,13 +38,13 @@ type NewServiceFormData struct {
 	Destination string
 }
 
-func (c *ServiceController) NewServiceForm(ctx *echo.Context) error {
+func (c *ServiceController) Create(ctx *echo.Context) error {
 	return ctx.Render(200, "new_service.html", map[string]any{
 		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
 	})
 }
 
-func (c *ServiceController) CreateService(ctx *echo.Context) error {
+func (c *ServiceController) Store(ctx *echo.Context) error {
 	formData := NewServiceFormData{
 		ServiceName: ctx.FormValue("service_name"),
 		Protocol:    ctx.FormValue("protocol"),

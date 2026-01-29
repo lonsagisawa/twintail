@@ -81,7 +81,7 @@ func TestIndex_GetServeStatusError(t *testing.T) {
 	}
 }
 
-func TestNewServiceForm(t *testing.T) {
+func TestCreate(t *testing.T) {
 	mockSvc := &mockTailscaleService{}
 	ctrl := NewServiceController(mockSvc)
 
@@ -91,7 +91,7 @@ func TestNewServiceForm(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := ctrl.NewServiceForm(c)
+	err := ctrl.Create(c)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -101,7 +101,7 @@ func TestNewServiceForm(t *testing.T) {
 	}
 }
 
-func TestCreateService_Success(t *testing.T) {
+func TestStore_Success(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		advertiseErr: nil,
 	}
@@ -115,7 +115,7 @@ func TestCreateService_Success(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := ctrl.CreateService(c)
+	err := ctrl.Store(c)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
@@ -125,7 +125,7 @@ func TestCreateService_Success(t *testing.T) {
 	}
 }
 
-func TestCreateService_Failure(t *testing.T) {
+func TestStore_Failure(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		advertiseErr: &services.AdvertiseError{Message: "Service already exists", Err: nil},
 	}
@@ -139,7 +139,7 @@ func TestCreateService_Failure(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := ctrl.CreateService(c)
+	err := ctrl.Store(c)
 
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
