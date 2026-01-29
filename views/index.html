@@ -8,13 +8,13 @@
 {{if .Services}}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {{range .Services}}
-    <div class="card shadow-lg hover:shadow-xl transition-shadow">
+    <a href="/services/{{.Name}}" class="card shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
         <div class="card-body">
             <h2 class="card-title text-lg">{{.Name}}</h2>
-            <a class="link hover:underline break-all mb-2" href="{{.HTTPSUrl}}" target="_blank">{{.HTTPSUrl}}</a>
+            <p class="link break-all mb-2">{{.HTTPSUrl}}</p>
             <p class="text-sm">→ {{.Proxy}}</p>
         </div>
-    </div>
+    </a>
     {{end}}
 </div>
 {{else}}

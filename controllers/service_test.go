@@ -13,12 +13,17 @@ import (
 )
 
 type mockTailscaleService struct {
-	services     []services.ServiceView
-	advertiseErr error
+	services      []services.ServiceView
+	serviceDetail *services.ServiceDetailView
+	advertiseErr  error
 }
 
 func (m *mockTailscaleService) GetServeStatus() ([]services.ServiceView, error) {
 	return m.services, m.advertiseErr
+}
+
+func (m *mockTailscaleService) GetServiceByName(name string) (*services.ServiceDetailView, error) {
+	return m.serviceDetail, m.advertiseErr
 }
 
 func (m *mockTailscaleService) AdvertiseService(params services.AdvertiseServiceParams) error {
@@ -146,5 +151,50 @@ func TestStore_Failure(t *testing.T) {
 	}
 	if rec.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestShow_Success(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		serviceDetail: &services.ServiceDetailView{
+			Name:     "web-app",
+			Hostname: "example.com",
+			URL:      "https://example.com",
+			Ports: []services.PortEntry{
+				{Protocol: "https", ExposePort: "443", Destination: "http://localhost:3000"},
+			},
+		},
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.GET("/services/:name", ctrl.Show)
+
+	req := httptest.NewRequest(http.MethodGet, "/services/web-app", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestShow_NotFound(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		serviceDetail: nil,
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.GET("/services/:name", ctrl.Show)
+
+	req := httptest.NewRequest(http.MethodGet, "/services/nonexistent", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", rec.Code)
 	}
 }

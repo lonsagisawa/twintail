@@ -8,6 +8,7 @@ import (
 
 type TailscaleService interface {
 	GetServeStatus() ([]services.ServiceView, error)
+	GetServiceByName(name string) (*services.ServiceDetailView, error)
 	AdvertiseService(params services.AdvertiseServiceParams) error
 }
 
@@ -69,5 +70,19 @@ func (c *ServiceController) Store(ctx *echo.Context) error {
 	return ctx.Render(200, "new_service.html", map[string]any{
 		"Success":  "Service '" + formData.ServiceName + "' has been advertised successfully.",
 		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
+	})
+}
+
+func (c *ServiceController) Show(ctx *echo.Context) error {
+	name := ctx.Param("name")
+	svc, err := c.tailscale.GetServiceByName(name)
+	if err != nil {
+		return ctx.String(500, "Failed to get service: "+err.Error())
+	}
+	if svc == nil {
+		return ctx.String(404, "Service not found")
+	}
+	return ctx.Render(200, "show_service.html", map[string]any{
+		"Service": svc,
 	})
 }

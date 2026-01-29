@@ -57,6 +57,7 @@ func main() {
 	e.GET("/", serviceCtrl.Index)
 	e.GET("/services/new", serviceCtrl.Create)
 	e.POST("/services/new", serviceCtrl.Store)
+	e.GET("/services/:name", serviceCtrl.Show)
 
 	e.StaticFS("/static", getStaticFS())
 
