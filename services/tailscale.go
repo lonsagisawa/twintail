@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"os/exec"
+	"sort"
 	"strings"
 )
 
@@ -108,6 +109,10 @@ func (s *TailscaleService) GetServeStatus() ([]ServiceView, error) {
 			Proxy:    proxy,
 		})
 	}
+
+	sort.Slice(services, func(i, j int) bool {
+		return services[i].Name < services[j].Name
+	})
 
 	return services, nil
 }
