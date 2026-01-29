@@ -19,6 +19,7 @@ func NewTemplateRenderer() *TemplateRenderer {
 			"viteTags": ViteTags,
 		}).
 		ParseGlob("views/layouts/*.html"))
+	template.Must(base.ParseGlob("views/partials/*.html"))
 
 	return &TemplateRenderer{baseTemplate: base}
 }

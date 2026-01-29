@@ -7,11 +7,7 @@
         <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
     </div>
 
-    {{if .Error}}
-    <div class="alert alert-error mb-4">
-        <span>{{.Error}}</span>
-    </div>
-    {{end}}
+    {{template "error_alert" .}}
 
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">

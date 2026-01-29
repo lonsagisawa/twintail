@@ -12,7 +12,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-//go:embed views/layouts/*.html views/*.html
+//go:embed views/layouts/*.html views/partials/*.html views/*.html
 var viewsFS embed.FS
 
 type TemplateRenderer struct {
@@ -24,7 +24,7 @@ func NewTemplateRenderer() *TemplateRenderer {
 		"viteTags": ViteTags,
 	}
 
-	base := template.Must(template.New("").Funcs(funcs).ParseFS(viewsFS, "views/layouts/*.html"))
+	base := template.Must(template.New("").Funcs(funcs).ParseFS(viewsFS, "views/layouts/*.html", "views/partials/*.html"))
 
 	templates := make(map[string]*template.Template)
 

@@ -1,0 +1,20 @@
+{{define "error_alert"}}
+{{if .Error}}
+<div class="alert alert-error mb-4">
+    <span>{{.Error}}</span>
+</div>
+{{end}}
+{{end}}
+
+{{define "success_alert"}}
+{{if .Success}}
+<div class="alert alert-success mb-4">
+    <span>{{.Success}}</span>
+</div>
+{{end}}
+{{end}}
+
+{{define "alerts"}}
+{{template "error_alert" .}}
+{{template "success_alert" .}}
+{{end}}

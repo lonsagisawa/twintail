@@ -7,11 +7,7 @@
         <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
     </div>
 
-    {{if .Error}}
-    <div class="alert alert-error mb-4">
-        <span>{{.Error}}</span>
-    </div>
-    {{end}}
+    {{template "error_alert" .}}
 
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
@@ -66,14 +62,4 @@
         </div>
     </div>
 </div>
-<script>
-    document.querySelector('select[name="protocol"]').addEventListener('change', function() {
-        const portInput = document.querySelector('input[name="expose_port"]');
-        if (this.value === 'https') {
-            portInput.value = '443';
-        } else if (this.value === 'http') {
-            portInput.value = '80';
-        }
-    });
-</script>
 {{end}}
