@@ -67,7 +67,7 @@ func TestIndex_Success(t *testing.T) {
 
 func TestIndex_GetServeStatusError(t *testing.T) {
 	mockSvc := &mockTailscaleService{
-		advertiseErr: &services.AdvertiseError{Message: "Failed to get serve status", Err: nil},
+		advertiseErr: &services.CommandError{Message: "Failed to get serve status", Err: nil},
 	}
 	ctrl := NewServiceController(mockSvc)
 
@@ -137,7 +137,7 @@ func TestStore_Success(t *testing.T) {
 
 func TestStore_Failure(t *testing.T) {
 	mockSvc := &mockTailscaleService{
-		advertiseErr: &services.AdvertiseError{Message: "Service already exists", Err: nil},
+		advertiseErr: &services.CommandError{Message: "Service already exists", Err: nil},
 	}
 	ctrl := NewServiceController(mockSvc)
 
@@ -270,7 +270,7 @@ func TestDestroy_Success(t *testing.T) {
 
 func TestDestroy_Failure(t *testing.T) {
 	mockSvc := &mockTailscaleService{
-		clearErr: &services.ClearError{Message: "Failed to clear service", Err: nil},
+		clearErr: &services.CommandError{Message: "Failed to clear service", Err: nil},
 	}
 	ctrl := NewServiceController(mockSvc)
 

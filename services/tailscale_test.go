@@ -20,7 +20,7 @@ func (m *mockCmd) CombinedOutput() ([]byte, error) {
 }
 
 var mockServeOutput []byte
-var mockAdvertiseError error
+var mockCommandError error
 
 func TestGetServeStatus_Success(t *testing.T) {
 	jsonData := `{
@@ -37,10 +37,10 @@ func TestGetServeStatus_Success(t *testing.T) {
 		}
 	}`
 	mockServeOutput = []byte(jsonData)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 
 	oldExecCommand := execCommand
@@ -56,8 +56,8 @@ func TestGetServeStatus_Success(t *testing.T) {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -86,10 +86,10 @@ func TestGetServeStatus_Success(t *testing.T) {
 
 func TestGetServeStatus_JSONParseError(t *testing.T) {
 	mockServeOutput = []byte("invalid json")
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 
 	oldExecCommand := execCommand
@@ -105,8 +105,8 @@ func TestGetServeStatus_JSONParseError(t *testing.T) {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -123,10 +123,10 @@ func TestGetServeStatus_JSONParseError(t *testing.T) {
 
 func TestAdvertiseService_Success(t *testing.T) {
 	mockServeOutput = nil
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 
 	oldExecCommand := execCommand
@@ -142,8 +142,8 @@ func TestAdvertiseService_Success(t *testing.T) {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -166,10 +166,10 @@ func TestAdvertiseService_Success(t *testing.T) {
 
 func TestAdvertiseService_Failure(t *testing.T) {
 	mockServeOutput = nil
-	mockAdvertiseError = errors.New("command failed")
+	mockCommandError = errors.New("command failed")
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 
 	oldExecCommand := execCommand
@@ -185,8 +185,8 @@ func TestAdvertiseService_Failure(t *testing.T) {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -206,9 +206,9 @@ func TestAdvertiseService_Failure(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	advErr, ok := err.(*AdvertiseError)
+	advErr, ok := err.(*CommandError)
 	if !ok {
-		t.Fatalf("expected AdvertiseError, got %T", err)
+		t.Fatalf("expected CommandError, got %T", err)
 	}
 	if advErr.Message != "command failed" {
 		t.Errorf("expected message 'command failed', got '%s'", advErr.Message)
@@ -217,10 +217,10 @@ func TestAdvertiseService_Failure(t *testing.T) {
 
 func TestGetServeStatus_EmptyServices(t *testing.T) {
 	mockServeOutput = []byte(`{"Services": {}}`)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 
 	oldExecCommand := execCommand
@@ -236,8 +236,8 @@ func TestGetServeStatus_EmptyServices(t *testing.T) {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -268,8 +268,8 @@ func setupMockExecCommand() func() {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(strings.Join(args, " "), "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -293,10 +293,10 @@ func TestGetServiceByName_Success(t *testing.T) {
 		}
 	}`
 	mockServeOutput = []byte(jsonData)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommand()()
 
@@ -334,10 +334,10 @@ func TestGetServiceByName_Success(t *testing.T) {
 
 func TestGetServiceByName_NotFound(t *testing.T) {
 	mockServeOutput = []byte(`{"Services": {}}`)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommand()()
 
@@ -372,10 +372,10 @@ func TestGetServiceByName_MultiplePorts(t *testing.T) {
 		}
 	}`
 	mockServeOutput = []byte(jsonData)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommand()()
 
@@ -411,10 +411,10 @@ func TestGetServiceByName_HTTPOnly(t *testing.T) {
 		}
 	}`
 	mockServeOutput = []byte(jsonData)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommand()()
 
@@ -450,10 +450,10 @@ func TestGetServiceByName_HTTPNonStandardPort(t *testing.T) {
 		}
 	}`
 	mockServeOutput = []byte(jsonData)
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
 		mockServeOutput = nil
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommand()()
 
@@ -471,8 +471,6 @@ func TestGetServiceByName_HTTPNonStandardPort(t *testing.T) {
 	}
 }
 
-var mockClearError error
-
 func setupMockExecCommandWithClear() func() {
 	oldExecCommand := execCommand
 	execCommand = func(name string, args ...string) interface {
@@ -487,13 +485,13 @@ func setupMockExecCommandWithClear() func() {
 			}
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(argsStr, "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		case strings.Contains(argsStr, "serve clear"):
-			if mockClearError != nil {
-				return &mockCmd{err: mockClearError, output: []byte("clear failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("clear failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -503,9 +501,9 @@ func setupMockExecCommandWithClear() func() {
 }
 
 func TestClearService_Success(t *testing.T) {
-	mockClearError = nil
+	mockCommandError = nil
 	defer func() {
-		mockClearError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommandWithClear()()
 
@@ -518,9 +516,9 @@ func TestClearService_Success(t *testing.T) {
 }
 
 func TestClearService_Failure(t *testing.T) {
-	mockClearError = errors.New("clear failed")
+	mockCommandError = errors.New("clear failed")
 	defer func() {
-		mockClearError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommandWithClear()()
 
@@ -531,16 +529,16 @@ func TestClearService_Failure(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	clearErr, ok := err.(*ClearError)
+	clearErr, ok := err.(*CommandError)
 	if !ok {
-		t.Fatalf("expected ClearError, got %T", err)
+		t.Fatalf("expected CommandError, got %T", err)
 	}
 	if clearErr.Message != "clear failed" {
 		t.Errorf("expected message 'clear failed', got '%s'", clearErr.Message)
 	}
 }
 
-var mockRemoveEndpointError error
+var mockRemoveCommandError error
 var capturedRemoveArgs []string
 
 func setupMockExecCommandWithEndpoint() func() {
@@ -558,18 +556,18 @@ func setupMockExecCommandWithEndpoint() func() {
 			return &mockCmd{output: []byte(`{"Services": {}}`)}
 		case strings.Contains(argsStr, "serve --service=") && strings.Contains(argsStr, " off"):
 			capturedRemoveArgs = args
-			if mockRemoveEndpointError != nil {
-				return &mockCmd{err: mockRemoveEndpointError, output: []byte("remove failed")}
+			if mockRemoveCommandError != nil {
+				return &mockCmd{err: mockRemoveCommandError, output: []byte("remove failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		case strings.Contains(argsStr, "serve --service="):
-			if mockAdvertiseError != nil {
-				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("command failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		case strings.Contains(argsStr, "serve clear"):
-			if mockClearError != nil {
-				return &mockCmd{err: mockClearError, output: []byte("clear failed")}
+			if mockCommandError != nil {
+				return &mockCmd{err: mockCommandError, output: []byte("clear failed")}
 			}
 			return &mockCmd{output: []byte("success")}
 		}
@@ -579,9 +577,9 @@ func setupMockExecCommandWithEndpoint() func() {
 }
 
 func TestAddEndpoint_Success(t *testing.T) {
-	mockAdvertiseError = nil
+	mockCommandError = nil
 	defer func() {
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommandWithEndpoint()()
 
@@ -600,9 +598,9 @@ func TestAddEndpoint_Success(t *testing.T) {
 }
 
 func TestAddEndpoint_Failure(t *testing.T) {
-	mockAdvertiseError = errors.New("command failed")
+	mockCommandError = errors.New("command failed")
 	defer func() {
-		mockAdvertiseError = nil
+		mockCommandError = nil
 	}()
 	defer setupMockExecCommandWithEndpoint()()
 
@@ -619,9 +617,9 @@ func TestAddEndpoint_Failure(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	endpointErr, ok := err.(*EndpointError)
+	endpointErr, ok := err.(*CommandError)
 	if !ok {
-		t.Fatalf("expected EndpointError, got %T", err)
+		t.Fatalf("expected CommandError, got %T", err)
 	}
 	if endpointErr.Message != "command failed" {
 		t.Errorf("expected message 'command failed', got '%s'", endpointErr.Message)
@@ -629,10 +627,10 @@ func TestAddEndpoint_Failure(t *testing.T) {
 }
 
 func TestRemoveEndpoint_Success(t *testing.T) {
-	mockRemoveEndpointError = nil
+	mockRemoveCommandError = nil
 	capturedRemoveArgs = nil
 	defer func() {
-		mockRemoveEndpointError = nil
+		mockRemoveCommandError = nil
 		capturedRemoveArgs = nil
 	}()
 	defer setupMockExecCommandWithEndpoint()()
@@ -666,9 +664,9 @@ func TestRemoveEndpoint_Success(t *testing.T) {
 }
 
 func TestRemoveEndpoint_Failure(t *testing.T) {
-	mockRemoveEndpointError = errors.New("remove failed")
+	mockRemoveCommandError = errors.New("remove failed")
 	defer func() {
-		mockRemoveEndpointError = nil
+		mockRemoveCommandError = nil
 	}()
 	defer setupMockExecCommandWithEndpoint()()
 
@@ -685,9 +683,9 @@ func TestRemoveEndpoint_Failure(t *testing.T) {
 		t.Fatal("expected error, got nil")
 	}
 
-	endpointErr, ok := err.(*EndpointError)
+	endpointErr, ok := err.(*CommandError)
 	if !ok {
-		t.Fatalf("expected EndpointError, got %T", err)
+		t.Fatalf("expected CommandError, got %T", err)
 	}
 	if endpointErr.Message != "remove failed" {
 		t.Errorf("expected message 'remove failed', got '%s'", endpointErr.Message)

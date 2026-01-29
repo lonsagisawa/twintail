@@ -75,7 +75,7 @@ func TestEndpointStore_Success(t *testing.T) {
 
 func TestEndpointStore_Failure(t *testing.T) {
 	mockSvc := &mockEndpointService{
-		endpointErr: &services.EndpointError{Message: "Failed to add endpoint", Err: nil},
+		endpointErr: &services.CommandError{Message: "Failed to add endpoint", Err: nil},
 	}
 	ctrl := NewEndpointController(mockSvc)
 
@@ -169,7 +169,7 @@ func TestEndpointDestroy_Success_ServiceGone(t *testing.T) {
 
 func TestEndpointDestroy_Failure(t *testing.T) {
 	mockSvc := &mockEndpointService{
-		endpointErr: &services.EndpointError{Message: "Failed to remove endpoint", Err: nil},
+		endpointErr: &services.CommandError{Message: "Failed to remove endpoint", Err: nil},
 	}
 	ctrl := NewEndpointController(mockSvc)
 

@@ -198,7 +198,7 @@ func (s *TailscaleService) AdvertiseService(params AdvertiseServiceParams) error
 	cmd := execCommand("tailscale", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return &AdvertiseError{
+		return &CommandError{
 			Message: string(output),
 			Err:     err,
 		}
@@ -206,12 +206,12 @@ func (s *TailscaleService) AdvertiseService(params AdvertiseServiceParams) error
 	return nil
 }
 
-type AdvertiseError struct {
+type CommandError struct {
 	Message string
 	Err     error
 }
 
-func (e *AdvertiseError) Error() string {
+func (e *CommandError) Error() string {
 	if e.Message != "" {
 		return e.Message
 	}
@@ -222,7 +222,7 @@ func (s *TailscaleService) ClearService(name string) error {
 	cmd := execCommand("tailscale", "serve", "clear", "svc:"+name)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return &ClearError{
+		return &CommandError{
 			Message: string(output),
 			Err:     err,
 		}
@@ -230,35 +230,11 @@ func (s *TailscaleService) ClearService(name string) error {
 	return nil
 }
 
-type ClearError struct {
-	Message string
-	Err     error
-}
-
-func (e *ClearError) Error() string {
-	if e.Message != "" {
-		return e.Message
-	}
-	return e.Err.Error()
-}
-
 type EndpointParams struct {
 	ServiceName string
 	Protocol    string
 	ExposePort  string
 	Destination string
-}
-
-type EndpointError struct {
-	Message string
-	Err     error
-}
-
-func (e *EndpointError) Error() string {
-	if e.Message != "" {
-		return e.Message
-	}
-	return e.Err.Error()
 }
 
 func (s *TailscaleService) AddEndpoint(params EndpointParams) error {
@@ -272,7 +248,7 @@ func (s *TailscaleService) AddEndpoint(params EndpointParams) error {
 	cmd := execCommand("tailscale", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return &EndpointError{
+		return &CommandError{
 			Message: string(output),
 			Err:     err,
 		}
@@ -292,7 +268,7 @@ func (s *TailscaleService) RemoveEndpoint(params EndpointParams) error {
 	cmd := execCommand("tailscale", args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return &EndpointError{
+		return &CommandError{
 			Message: string(output),
 			Err:     err,
 		}
