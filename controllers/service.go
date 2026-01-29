@@ -10,6 +10,7 @@ type TailscaleService interface {
 	GetServeStatus() ([]services.ServiceView, error)
 	GetServiceByName(name string) (*services.ServiceDetailView, error)
 	AdvertiseService(params services.AdvertiseServiceParams) error
+	ClearService(name string) error
 }
 
 type ServiceController struct {
@@ -85,4 +86,26 @@ func (c *ServiceController) Show(ctx *echo.Context) error {
 	return ctx.Render(200, "show_service.html", map[string]any{
 		"Service": svc,
 	})
+}
+
+func (c *ServiceController) ConfirmDelete(ctx *echo.Context) error {
+	name := ctx.Param("name")
+	svc, err := c.tailscale.GetServiceByName(name)
+	if err != nil {
+		return ctx.String(500, "Failed to get service: "+err.Error())
+	}
+	if svc == nil {
+		return ctx.String(404, "Service not found")
+	}
+	return ctx.Render(200, "confirm_delete.html", map[string]any{
+		"Service": svc,
+	})
+}
+
+func (c *ServiceController) Destroy(ctx *echo.Context) error {
+	name := ctx.Param("name")
+	if err := c.tailscale.ClearService(name); err != nil {
+		return ctx.String(500, "Failed to delete service: "+err.Error())
+	}
+	return ctx.Redirect(303, "/")
 }

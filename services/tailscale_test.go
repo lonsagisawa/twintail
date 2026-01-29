@@ -470,3 +470,72 @@ func TestGetServiceByName_HTTPNonStandardPort(t *testing.T) {
 		t.Errorf("expected URL 'http://example.com:8080', got '%s'", detail.URL)
 	}
 }
+
+var mockClearError error
+
+func setupMockExecCommandWithClear() func() {
+	oldExecCommand := execCommand
+	execCommand = func(name string, args ...string) interface {
+		Output() ([]byte, error)
+		CombinedOutput() ([]byte, error)
+	} {
+		argsStr := strings.Join(args, " ")
+		switch {
+		case strings.Contains(argsStr, "serve status"):
+			if mockServeOutput != nil {
+				return &mockCmd{output: mockServeOutput}
+			}
+			return &mockCmd{output: []byte(`{"Services": {}}`)}
+		case strings.Contains(argsStr, "serve --service="):
+			if mockAdvertiseError != nil {
+				return &mockCmd{err: mockAdvertiseError, output: []byte("command failed")}
+			}
+			return &mockCmd{output: []byte("success")}
+		case strings.Contains(argsStr, "serve clear"):
+			if mockClearError != nil {
+				return &mockCmd{err: mockClearError, output: []byte("clear failed")}
+			}
+			return &mockCmd{output: []byte("success")}
+		}
+		return &mockCmd{err: errors.New("unexpected command")}
+	}
+	return func() { execCommand = oldExecCommand }
+}
+
+func TestClearService_Success(t *testing.T) {
+	mockClearError = nil
+	defer func() {
+		mockClearError = nil
+	}()
+	defer setupMockExecCommandWithClear()()
+
+	svc := NewTailscaleService()
+	err := svc.ClearService("my-service")
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestClearService_Failure(t *testing.T) {
+	mockClearError = errors.New("clear failed")
+	defer func() {
+		mockClearError = nil
+	}()
+	defer setupMockExecCommandWithClear()()
+
+	svc := NewTailscaleService()
+	err := svc.ClearService("my-service")
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	clearErr, ok := err.(*ClearError)
+	if !ok {
+		t.Fatalf("expected ClearError, got %T", err)
+	}
+	if clearErr.Message != "clear failed" {
+		t.Errorf("expected message 'clear failed', got '%s'", clearErr.Message)
+	}
+}

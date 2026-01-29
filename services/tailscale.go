@@ -205,3 +205,27 @@ func (e *AdvertiseError) Error() string {
 	}
 	return e.Err.Error()
 }
+
+func (s *TailscaleService) ClearService(name string) error {
+	cmd := execCommand("tailscale", "serve", "clear", "svc:"+name)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return &ClearError{
+			Message: string(output),
+			Err:     err,
+		}
+	}
+	return nil
+}
+
+type ClearError struct {
+	Message string
+	Err     error
+}
+
+func (e *ClearError) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+	return e.Err.Error()
+}

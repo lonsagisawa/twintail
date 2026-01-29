@@ -1,0 +1,19 @@
+{{define "title"}}Delete Service: {{.Service.Name}}{{end}}
+
+{{define "content"}}
+<div class="max-w-md mx-auto">
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <h1 class="card-title text-xl text-error">Delete Service</h1>
+            <p class="py-4">Are you sure you want to delete the service <strong>{{.Service.Name}}</strong>?</p>
+            <p class="text-sm opacity-70">This will remove all endpoint configurations for this service. This action cannot be undone.</p>
+            <div class="card-actions justify-end mt-6">
+                <a href="/services/{{.Service.Name}}" class="btn btn-ghost">Cancel</a>
+                <form action="/services/{{.Service.Name}}/delete" method="POST" class="inline">
+                    <button type="submit" class="btn btn-error">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

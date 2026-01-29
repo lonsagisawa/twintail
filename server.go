@@ -58,6 +58,8 @@ func main() {
 	e.GET("/services/new", serviceCtrl.Create)
 	e.POST("/services/new", serviceCtrl.Store)
 	e.GET("/services/:name", serviceCtrl.Show)
+	e.GET("/services/:name/delete", serviceCtrl.ConfirmDelete)
+	e.POST("/services/:name/delete", serviceCtrl.Destroy)
 
 	e.StaticFS("/static", getStaticFS())
 

@@ -16,6 +16,7 @@ type mockTailscaleService struct {
 	services      []services.ServiceView
 	serviceDetail *services.ServiceDetailView
 	advertiseErr  error
+	clearErr      error
 }
 
 func (m *mockTailscaleService) GetServeStatus() ([]services.ServiceView, error) {
@@ -28,6 +29,10 @@ func (m *mockTailscaleService) GetServiceByName(name string) (*services.ServiceD
 
 func (m *mockTailscaleService) AdvertiseService(params services.AdvertiseServiceParams) error {
 	return m.advertiseErr
+}
+
+func (m *mockTailscaleService) ClearService(name string) error {
+	return m.clearErr
 }
 
 type mockRenderer struct{}
@@ -196,5 +201,88 @@ func TestShow_NotFound(t *testing.T) {
 
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("expected status 404, got %d", rec.Code)
+	}
+}
+
+func TestConfirmDelete_Success(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		serviceDetail: &services.ServiceDetailView{
+			Name:     "web-app",
+			Hostname: "example.com",
+			URL:      "https://example.com",
+		},
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.GET("/services/:name/delete", ctrl.ConfirmDelete)
+
+	req := httptest.NewRequest(http.MethodGet, "/services/web-app/delete", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestConfirmDelete_NotFound(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		serviceDetail: nil,
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.GET("/services/:name/delete", ctrl.ConfirmDelete)
+
+	req := httptest.NewRequest(http.MethodGet, "/services/nonexistent/delete", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", rec.Code)
+	}
+}
+
+func TestDestroy_Success(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		clearErr: nil,
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.POST("/services/:name/delete", ctrl.Destroy)
+
+	req := httptest.NewRequest(http.MethodPost, "/services/web-app/delete", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
+	}
+	if rec.Header().Get("Location") != "/" {
+		t.Errorf("expected redirect to /, got %s", rec.Header().Get("Location"))
+	}
+}
+
+func TestDestroy_Failure(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		clearErr: &services.ClearError{Message: "Failed to clear service", Err: nil},
+	}
+	ctrl := NewServiceController(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.POST("/services/:name/delete", ctrl.Destroy)
+
+	req := httptest.NewRequest(http.MethodPost, "/services/web-app/delete", nil)
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", rec.Code)
 	}
 }
