@@ -1,0 +1,79 @@
+{{define "title"}}Add Endpoint: {{.ServiceName}}{{end}}
+
+{{define "content"}}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold">Add Endpoint</h1>
+        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
+
+    {{if .Error}}
+    <div class="alert alert-error mb-4">
+        <span>{{.Error}}</span>
+    </div>
+    {{end}}
+
+    <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <form method="POST" action="/services/{{.ServiceName}}/endpoints/new">
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Service Name</span>
+                    </label>
+                    <input type="text" class="input input-bordered w-full bg-base-200" 
+                           value="{{.ServiceName}}" disabled>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Protocol</span>
+                    </label>
+                    <select name="protocol" class="select select-bordered w-full">
+                        <option value="https" {{if eq .FormData.Protocol "https"}}selected{{end}}>HTTPS (TLS termination)</option>
+                        <option value="http" {{if eq .FormData.Protocol "http"}}selected{{end}}>HTTP</option>
+                    </select>
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label">
+                        <span class="label-text font-semibold">Expose Port</span>
+                    </label>
+                    <input type="number" name="expose_port" placeholder="443" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.ExposePort}}"
+                           min="1" max="65535">
+                    <label class="label">
+                        <span class="label-text-alt">外部に公開するポート番号</span>
+                    </label>
+                </div>
+
+                <div class="form-control mb-6">
+                    <label class="label">
+                        <span class="label-text font-semibold">Local Destination</span>
+                    </label>
+                    <input type="text" name="destination" placeholder="http://localhost:8080" 
+                           class="input input-bordered w-full" required
+                           value="{{.FormData.Destination}}">
+                    <label class="label">
+                        <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080)</span>
+                    </label>
+                </div>
+
+                <div class="card-actions justify-end">
+                    <button type="submit" class="btn btn-primary">Add Endpoint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelector('select[name="protocol"]').addEventListener('change', function() {
+        const portInput = document.querySelector('input[name="expose_port"]');
+        if (this.value === 'https') {
+            portInput.value = '443';
+        } else if (this.value === 'http') {
+            portInput.value = '80';
+        }
+    });
+</script>
+{{end}}

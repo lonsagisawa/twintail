@@ -53,6 +53,7 @@ func main() {
 
 	tailscaleSvc := services.NewTailscaleService()
 	serviceCtrl := controllers.NewServiceController(tailscaleSvc)
+	endpointCtrl := controllers.NewEndpointController(tailscaleSvc)
 
 	e.GET("/", serviceCtrl.Index)
 	e.GET("/services/new", serviceCtrl.Create)
@@ -60,6 +61,10 @@ func main() {
 	e.GET("/services/:name", serviceCtrl.Show)
 	e.GET("/services/:name/delete", serviceCtrl.ConfirmDelete)
 	e.POST("/services/:name/delete", serviceCtrl.Destroy)
+	e.GET("/services/:name/endpoints/new", endpointCtrl.Create)
+	e.POST("/services/:name/endpoints/new", endpointCtrl.Store)
+	e.GET("/services/:name/endpoints/delete", endpointCtrl.ConfirmDelete)
+	e.POST("/services/:name/endpoints/delete", endpointCtrl.Destroy)
 
 	e.StaticFS("/static", getStaticFS())
 

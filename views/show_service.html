@@ -22,7 +22,10 @@
 
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-            <h2 class="card-title text-lg mb-4">Exposed Ports</h2>
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title text-lg">Exposed Ports</h2>
+                <a href="/services/{{.Service.Name}}/endpoints/new" class="btn btn-primary btn-sm">+ Add Endpoint</a>
+            </div>
             {{if .Service.Ports}}
             <div class="overflow-x-auto">
                 <table class="table">
@@ -31,6 +34,7 @@
                             <th>Protocol</th>
                             <th>Port</th>
                             <th>Local Destination</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,6 +43,10 @@
                             <td class="uppercase">{{.Protocol}}</td>
                             <td>{{.ExposePort}}</td>
                             <td><code>{{.Destination}}</code></td>
+                            <td>
+                                <a href="/services/{{$.Service.Name}}/endpoints/delete?protocol={{.Protocol}}&port={{.ExposePort}}&destination={{.Destination}}" 
+                                   class="btn btn-error btn-xs">Delete</a>
+                            </td>
                         </tr>
                         {{end}}
                     </tbody>

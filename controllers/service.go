@@ -68,10 +68,7 @@ func (c *ServiceController) Store(ctx *echo.Context) error {
 		})
 	}
 
-	return ctx.Render(200, "new_service.html", map[string]any{
-		"Success":  "Service '" + formData.ServiceName + "' has been advertised successfully.",
-		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
-	})
+	return ctx.Redirect(303, "/services/"+formData.ServiceName)
 }
 
 func (c *ServiceController) Show(ctx *echo.Context) error {

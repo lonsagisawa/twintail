@@ -130,8 +130,8 @@ func TestStore_Success(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if rec.Code != http.StatusOK {
-		t.Errorf("expected status 200, got %d", rec.Code)
+	if rec.Code != http.StatusSeeOther {
+		t.Errorf("expected status 303, got %d", rec.Code)
 	}
 }
 
