@@ -24,9 +24,9 @@ func NewEndpointController(tailscale EndpointService) *EndpointController {
 }
 
 type EndpointFormData struct {
-	Protocol    string
-	ExposePort  string
-	Destination string
+	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
+	ExposePort  string `form:"expose_port" validate:"required,numeric"`
+	Destination string `form:"destination" validate:"required"`
 }
 
 func (c *EndpointController) Create(ctx *echo.Context) error {
@@ -39,10 +39,20 @@ func (c *EndpointController) Create(ctx *echo.Context) error {
 
 func (c *EndpointController) Store(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	formData := EndpointFormData{
-		Protocol:    ctx.FormValue("protocol"),
-		ExposePort:  ctx.FormValue("expose_port"),
-		Destination: ctx.FormValue("destination"),
+	var formData EndpointFormData
+	if err := ctx.Bind(&formData); err != nil {
+		return ctx.Render(200, "new_endpoint.html", map[string]any{
+			"ServiceName": name,
+			"Error":       err.Error(),
+			"FormData":    formData,
+		})
+	}
+	if err := ctx.Validate(&formData); err != nil {
+		return ctx.Render(200, "new_endpoint.html", map[string]any{
+			"ServiceName": name,
+			"Error":       err.Error(),
+			"FormData":    formData,
+		})
 	}
 
 	params := services.EndpointParams{
@@ -99,10 +109,10 @@ func (c *EndpointController) Destroy(ctx *echo.Context) error {
 }
 
 type EditEndpointFormData struct {
-	Protocol       string
-	ExposePort     string
-	OldDestination string
-	NewDestination string
+	Protocol       string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
+	ExposePort     string `form:"expose_port" validate:"required,numeric"`
+	OldDestination string `form:"old_destination" validate:"required"`
+	NewDestination string `form:"new_destination" validate:"required"`
 }
 
 func (c *EndpointController) Edit(ctx *echo.Context) error {
@@ -124,11 +134,20 @@ func (c *EndpointController) Edit(ctx *echo.Context) error {
 
 func (c *EndpointController) Update(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	formData := EditEndpointFormData{
-		Protocol:       ctx.FormValue("protocol"),
-		ExposePort:     ctx.FormValue("expose_port"),
-		OldDestination: ctx.FormValue("old_destination"),
-		NewDestination: ctx.FormValue("new_destination"),
+	var formData EditEndpointFormData
+	if err := ctx.Bind(&formData); err != nil {
+		return ctx.Render(200, "edit_endpoint.html", map[string]any{
+			"ServiceName": name,
+			"Error":       err.Error(),
+			"FormData":    formData,
+		})
+	}
+	if err := ctx.Validate(&formData); err != nil {
+		return ctx.Render(200, "edit_endpoint.html", map[string]any{
+			"ServiceName": name,
+			"Error":       err.Error(),
+			"FormData":    formData,
+		})
 	}
 
 	params := services.UpdateEndpointParams{

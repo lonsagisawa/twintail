@@ -50,6 +50,7 @@ func main() {
 	setupLiveReload(e)
 
 	e.Renderer = parseTemplates()
+	e.Validator = NewCustomValidator()
 
 	tailscaleSvc := services.NewTailscaleService()
 	serviceCtrl := controllers.NewServiceController(tailscaleSvc)

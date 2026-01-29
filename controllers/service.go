@@ -34,10 +34,10 @@ func (c *ServiceController) Index(ctx *echo.Context) error {
 }
 
 type NewServiceFormData struct {
-	ServiceName string
-	Protocol    string
-	ExposePort  string
-	Destination string
+	ServiceName string `form:"service_name" validate:"required"`
+	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
+	ExposePort  string `form:"expose_port" validate:"required,numeric"`
+	Destination string `form:"destination" validate:"required"`
 }
 
 func (c *ServiceController) Create(ctx *echo.Context) error {
@@ -47,11 +47,18 @@ func (c *ServiceController) Create(ctx *echo.Context) error {
 }
 
 func (c *ServiceController) Store(ctx *echo.Context) error {
-	formData := NewServiceFormData{
-		ServiceName: ctx.FormValue("service_name"),
-		Protocol:    ctx.FormValue("protocol"),
-		ExposePort:  ctx.FormValue("expose_port"),
-		Destination: ctx.FormValue("destination"),
+	var formData NewServiceFormData
+	if err := ctx.Bind(&formData); err != nil {
+		return ctx.Render(200, "new_service.html", map[string]any{
+			"Error":    err.Error(),
+			"FormData": formData,
+		})
+	}
+	if err := ctx.Validate(&formData); err != nil {
+		return ctx.Render(200, "new_service.html", map[string]any{
+			"Error":    err.Error(),
+			"FormData": formData,
+		})
 	}
 
 	params := services.AdvertiseServiceParams{
