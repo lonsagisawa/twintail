@@ -140,6 +140,7 @@ func TestEndpointDestroy_Success_ServiceExists(t *testing.T) {
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
+	e.Validator = newEndpointTestValidator()
 	e.POST("/services/:name/endpoints/delete", ctrl.Destroy)
 
 	form := strings.NewReader("protocol=https&expose_port=443&destination=http://localhost:8080")
@@ -165,6 +166,7 @@ func TestEndpointDestroy_Success_ServiceGone(t *testing.T) {
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
+	e.Validator = newEndpointTestValidator()
 	e.POST("/services/:name/endpoints/delete", ctrl.Destroy)
 
 	form := strings.NewReader("protocol=https&expose_port=443&destination=http://localhost:8080")

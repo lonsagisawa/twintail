@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"twintail/requests"
 	"twintail/services"
 
 	"github.com/labstack/echo/v5"
@@ -23,22 +24,15 @@ func (h *SettingsHandler) Show(ctx *echo.Context) error {
 	})
 }
 
-type SettingsFormData struct {
-	Lang string `form:"lang" validate:"required,oneof=en ja"`
-}
-
 func (h *SettingsHandler) Update(ctx *echo.Context) error {
-	var formData SettingsFormData
-	if err := ctx.Bind(&formData); err != nil {
-		return ctx.Redirect(303, "/settings")
-	}
-	if err := ctx.Validate(&formData); err != nil {
+	var req requests.UpdateSettingsRequest
+	if err := req.FromContext(ctx); err != nil {
 		return ctx.Redirect(303, "/settings")
 	}
 
 	cookie := &http.Cookie{
 		Name:     "lang",
-		Value:    formData.Lang,
+		Value:    req.Lang,
 		Path:     "/",
 		MaxAge:   int(365 * 24 * time.Hour / time.Second),
 		HttpOnly: true,

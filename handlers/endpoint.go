@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"twintail/requests"
 	"twintail/services"
 
 	"github.com/labstack/echo/v5"
@@ -23,50 +24,31 @@ func NewEndpointHandler(tailscale EndpointService) *EndpointHandler {
 	}
 }
 
-type EndpointFormData struct {
-	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
-	ExposePort  string `form:"expose_port" validate:"required,numeric"`
-	Destination string `form:"destination" validate:"required"`
-}
-
 func (h *EndpointHandler) Create(ctx *echo.Context) error {
 	name := ctx.Param("name")
+	var req requests.StoreEndpointRequest
 	return ctx.Render(200, "new_endpoint.html", map[string]any{
 		"ServiceName": name,
-		"FormData":    EndpointFormData{Protocol: "https", ExposePort: "443"},
+		"FormData":    req.Default(),
 	})
 }
 
 func (h *EndpointHandler) Store(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	var formData EndpointFormData
-	if err := ctx.Bind(&formData); err != nil {
+	var req requests.StoreEndpointRequest
+	if err := req.FromContext(ctx); err != nil {
 		return ctx.Render(200, "new_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
-			"FormData":    formData,
-		})
-	}
-	if err := ctx.Validate(&formData); err != nil {
-		return ctx.Render(200, "new_endpoint.html", map[string]any{
-			"ServiceName": name,
-			"Error":       err.Error(),
-			"FormData":    formData,
+			"FormData":    req,
 		})
 	}
 
-	params := services.EndpointParams{
-		ServiceName: name,
-		Protocol:    formData.Protocol,
-		ExposePort:  formData.ExposePort,
-		Destination: formData.Destination,
-	}
-
-	if err := h.tailscale.AddEndpoint(params); err != nil {
+	if err := h.tailscale.AddEndpoint(req.ToParams(name)); err != nil {
 		return ctx.Render(200, "new_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
-			"FormData":    formData,
+			"FormData":    req,
 		})
 	}
 
@@ -89,14 +71,12 @@ func (h *EndpointHandler) Delete(ctx *echo.Context) error {
 
 func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	params := services.EndpointParams{
-		ServiceName: name,
-		Protocol:    ctx.FormValue("protocol"),
-		ExposePort:  ctx.FormValue("expose_port"),
-		Destination: ctx.FormValue("destination"),
+	var req requests.DestroyEndpointRequest
+	if err := req.FromContext(ctx); err != nil {
+		return ctx.String(500, "Invalid request: "+err.Error())
 	}
 
-	if err := h.tailscale.RemoveEndpoint(params); err != nil {
+	if err := h.tailscale.RemoveEndpoint(req.ToParams(name)); err != nil {
 		return ctx.String(500, "Failed to delete endpoint: "+err.Error())
 	}
 
@@ -108,13 +88,6 @@ func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 	return ctx.Redirect(303, "/services/"+name)
 }
 
-type EditEndpointFormData struct {
-	Protocol       string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
-	ExposePort     string `form:"expose_port" validate:"required,numeric"`
-	OldDestination string `form:"old_destination" validate:"required"`
-	NewDestination string `form:"new_destination" validate:"required"`
-}
-
 func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
@@ -123,7 +96,7 @@ func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 
 	return ctx.Render(200, "edit_endpoint.html", map[string]any{
 		"ServiceName": name,
-		"FormData": EditEndpointFormData{
+		"FormData": requests.UpdateEndpointRequest{
 			Protocol:       protocol,
 			ExposePort:     exposePort,
 			OldDestination: destination,
@@ -134,35 +107,20 @@ func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 
 func (h *EndpointHandler) Update(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	var formData EditEndpointFormData
-	if err := ctx.Bind(&formData); err != nil {
+	var req requests.UpdateEndpointRequest
+	if err := req.FromContext(ctx); err != nil {
 		return ctx.Render(200, "edit_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
-			"FormData":    formData,
-		})
-	}
-	if err := ctx.Validate(&formData); err != nil {
-		return ctx.Render(200, "edit_endpoint.html", map[string]any{
-			"ServiceName": name,
-			"Error":       err.Error(),
-			"FormData":    formData,
+			"FormData":    req,
 		})
 	}
 
-	params := services.UpdateEndpointParams{
-		ServiceName:    name,
-		Protocol:       formData.Protocol,
-		ExposePort:     formData.ExposePort,
-		OldDestination: formData.OldDestination,
-		NewDestination: formData.NewDestination,
-	}
-
-	if err := h.tailscale.UpdateEndpoint(params); err != nil {
+	if err := h.tailscale.UpdateEndpoint(req.ToParams(name)); err != nil {
 		return ctx.Render(200, "edit_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
-			"FormData":    formData,
+			"FormData":    req,
 		})
 	}
 

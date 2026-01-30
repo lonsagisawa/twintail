@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"twintail/requests"
 	"twintail/services"
 
 	"github.com/labstack/echo/v5"
@@ -33,49 +34,30 @@ func (h *ServiceHandler) Index(ctx *echo.Context) error {
 	})
 }
 
-type NewServiceFormData struct {
-	ServiceName string `form:"service_name" validate:"required"`
-	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
-	ExposePort  string `form:"expose_port" validate:"required,numeric"`
-	Destination string `form:"destination" validate:"required"`
-}
-
 func (h *ServiceHandler) Create(ctx *echo.Context) error {
+	var req requests.StoreServiceRequest
 	return ctx.Render(200, "new_service.html", map[string]any{
-		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
+		"FormData": req.Default(),
 	})
 }
 
 func (h *ServiceHandler) Store(ctx *echo.Context) error {
-	var formData NewServiceFormData
-	if err := ctx.Bind(&formData); err != nil {
+	var req requests.StoreServiceRequest
+	if err := req.FromContext(ctx); err != nil {
 		return ctx.Render(200, "new_service.html", map[string]any{
 			"Error":    err.Error(),
-			"FormData": formData,
-		})
-	}
-	if err := ctx.Validate(&formData); err != nil {
-		return ctx.Render(200, "new_service.html", map[string]any{
-			"Error":    err.Error(),
-			"FormData": formData,
+			"FormData": req,
 		})
 	}
 
-	params := services.AdvertiseServiceParams{
-		ServiceName: formData.ServiceName,
-		Protocol:    formData.Protocol,
-		ExposePort:  formData.ExposePort,
-		Destination: formData.Destination,
-	}
-
-	if err := h.tailscale.AdvertiseService(params); err != nil {
+	if err := h.tailscale.AdvertiseService(req.ToParams()); err != nil {
 		return ctx.Render(200, "new_service.html", map[string]any{
 			"Error":    err.Error(),
-			"FormData": formData,
+			"FormData": req,
 		})
 	}
 
-	return ctx.Redirect(303, "/services/"+formData.ServiceName)
+	return ctx.Redirect(303, "/services/"+req.ServiceName)
 }
 
 func (h *ServiceHandler) Show(ctx *echo.Context) error {
