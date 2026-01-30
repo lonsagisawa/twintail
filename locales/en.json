@@ -47,5 +47,10 @@
   "endpoint.service": "Service",
   "endpoint.protocol": "Protocol",
   "endpoint.port": "Port",
-  "endpoint.destination": "Destination"
+  "endpoint.destination": "Destination",
+
+  "settings.title": "Settings",
+  "settings.language": "Language",
+  "settings.language_help": "Select your preferred language",
+  "settings.save": "Save"
 }

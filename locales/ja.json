@@ -47,5 +47,10 @@
   "endpoint.service": "サービス",
   "endpoint.protocol": "プロトコル",
   "endpoint.port": "ポート",
-  "endpoint.destination": "転送先"
+  "endpoint.destination": "転送先",
+
+  "settings.title": "設定",
+  "settings.language": "言語",
+  "settings.language_help": "表示言語を選択してください",
+  "settings.save": "保存"
 }

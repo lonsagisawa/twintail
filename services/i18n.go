@@ -90,3 +90,16 @@ func ParseAcceptLanguage(header string) string {
 
 	return "en"
 }
+
+func NormalizeLang(lang string) string {
+	switch lang {
+	case "ja", "en":
+		return lang
+	default:
+		return "en"
+	}
+}
+
+func GetSupportedLanguages() []string {
+	return []string{"en", "ja"}
+}

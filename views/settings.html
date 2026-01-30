@@ -1,0 +1,31 @@
+{{define "title"}}{{t "settings.title"}}{{end}}
+
+{{define "content"}}
+<div class="max-w-2xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold">{{t "settings.title"}}</h1>
+        <a href="/" class="btn btn-ghost btn-sm">{{t "nav.back"}}</a>
+    </div>
+
+    <form method="POST" action="/settings" class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-medium">{{t "settings.language"}}</span>
+                </label>
+                <select name="lang" class="select select-bordered w-full">
+                    <option value="en" {{if eq .CurrentLang "en"}}selected{{end}}>English</option>
+                    <option value="ja" {{if eq .CurrentLang "ja"}}selected{{end}}>日本語</option>
+                </select>
+                <label class="label">
+                    <span class="label-text-alt">{{t "settings.language_help"}}</span>
+                </label>
+            </div>
+
+            <div class="form-control mt-6">
+                <button type="submit" class="btn btn-primary">{{t "settings.save"}}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{{end}}

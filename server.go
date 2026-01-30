@@ -15,8 +15,13 @@ import (
 func i18nMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			acceptLang := c.Request().Header.Get("Accept-Language")
-			lang := services.ParseAcceptLanguage(acceptLang)
+			var lang string
+			if cookie, err := c.Cookie("lang"); err == nil && cookie.Value != "" {
+				lang = services.NormalizeLang(cookie.Value)
+			} else {
+				acceptLang := c.Request().Header.Get("Accept-Language")
+				lang = services.ParseAcceptLanguage(acceptLang)
+			}
 			c.Set("lang", lang)
 			return next(c)
 		}
@@ -80,6 +85,10 @@ func main() {
 	e.POST("/services/:name/endpoints/edit", endpointHandler.Update)
 	e.GET("/services/:name/endpoints/delete", endpointHandler.Delete)
 	e.POST("/services/:name/endpoints/delete", endpointHandler.Destroy)
+
+	settingsHandler := handlers.NewSettingsHandler()
+	e.GET("/settings", settingsHandler.Show)
+	e.POST("/settings", settingsHandler.Update)
 
 	e.StaticFS("/static", getStaticFS())
 
