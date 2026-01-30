@@ -9,6 +9,8 @@ import (
 	"io/fs"
 	"strings"
 
+	"twintail/services"
+
 	"github.com/labstack/echo/v5"
 )
 
@@ -17,11 +19,13 @@ var viewsFS embed.FS
 
 type TemplateRenderer struct {
 	templates map[string]*template.Template
+	i18n      *services.I18n
 }
 
-func NewTemplateRenderer() *TemplateRenderer {
+func NewTemplateRenderer(i18n *services.I18n) *TemplateRenderer {
 	funcs := template.FuncMap{
 		"viteTags": ViteTags,
+		"t":        func(key string) string { return key },
 	}
 
 	base := template.Must(template.New("").Funcs(funcs).ParseFS(viewsFS, "views/layouts/*.html", "views/partials/*.html"))
@@ -42,16 +46,33 @@ func NewTemplateRenderer() *TemplateRenderer {
 		templates[page] = tmpl
 	}
 
-	return &TemplateRenderer{templates: templates}
+	return &TemplateRenderer{templates: templates, i18n: i18n}
 }
 
 func (t *TemplateRenderer) Render(c *echo.Context, w io.Writer, name string, data any) error {
+	lang := "en"
+	if l, ok := c.Get("lang").(string); ok {
+		lang = l
+	}
+
+	translator := t.i18n.GetTranslator(lang)
+
+	tmpl := template.Must(t.templates[name].Clone())
+	tmpl = tmpl.Funcs(template.FuncMap{
+		"t": translator,
+	})
+
 	if m, ok := data.(map[string]any); ok {
 		m["LiveReloadScript"] = c.Get("liveReloadScript")
+		m["Lang"] = lang
 	}
-	return t.templates[name].ExecuteTemplate(w, "base", data)
+
+	return tmpl.ExecuteTemplate(w, "base", data)
 }
 
+var globalI18n *services.I18n
+
 func parseTemplates() *TemplateRenderer {
-	return NewTemplateRenderer()
+	globalI18n = loadI18n()
+	return NewTemplateRenderer(globalI18n)
 }

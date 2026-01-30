@@ -1,10 +1,10 @@
-{{define "title"}}Edit Endpoint: {{.ServiceName}}{{end}}
+{{define "title"}}{{t "edit_endpoint.title"}}: {{.ServiceName}}{{end}}
 
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold">Edit Endpoint</h1>
-        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
+        <h1 class="text-2xl md:text-3xl font-bold">{{t "edit_endpoint.title"}}</h1>
+        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">{{t "nav.back"}}</a>
     </div>
 
     {{template "error_alert" .}}
@@ -18,7 +18,7 @@
 
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Service Name</span>
+                        <span class="label-text font-semibold">{{t "new_service.service_name"}}</span>
                     </label>
                     <input type="text" class="input input-bordered w-full bg-base-200" 
                            value="{{.ServiceName}}" disabled>
@@ -26,7 +26,7 @@
 
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Protocol</span>
+                        <span class="label-text font-semibold">{{t "new_service.protocol"}}</span>
                     </label>
                     <input type="text" class="input input-bordered w-full bg-base-200 uppercase" 
                            value="{{.FormData.Protocol}}" disabled>
@@ -34,7 +34,7 @@
 
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Expose Port</span>
+                        <span class="label-text font-semibold">{{t "new_service.expose_port"}}</span>
                     </label>
                     <input type="text" class="input input-bordered w-full bg-base-200" 
                            value="{{.FormData.ExposePort}}" disabled>
@@ -42,18 +42,18 @@
 
                 <div class="form-control mb-6">
                     <label class="label">
-                        <span class="label-text font-semibold">Local Destination</span>
+                        <span class="label-text font-semibold">{{t "new_service.destination"}}</span>
                     </label>
                     <input type="text" name="new_destination" placeholder="http://localhost:8080" 
                            class="input input-bordered w-full" required
                            value="{{.FormData.NewDestination}}">
                     <label class="label">
-                        <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080)</span>
+                        <span class="label-text-alt">{{t "new_service.destination_help"}}</span>
                     </label>
                 </div>
 
                 <div class="card-actions justify-end">
-                    <button type="submit" class="btn btn-primary">Update Endpoint</button>
+                    <button type="submit" class="btn btn-primary">{{t "btn.update"}}</button>
                 </div>
             </form>
         </div>

@@ -1,10 +1,10 @@
-{{define "title"}}New Service{{end}}
+{{define "title"}}{{t "new_service.title"}}{{end}}
 
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold">Advertise New Service</h1>
-        <a href="/" class="btn btn-ghost btn-sm">← Back</a>
+        <h1 class="text-2xl md:text-3xl font-bold">{{t "new_service.title"}}</h1>
+        <a href="/" class="btn btn-ghost btn-sm">{{t "nav.back"}}</a>
     </div>
 
     {{template "alerts" .}}
@@ -14,65 +14,62 @@
             <form method="POST" action="/services/new">
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Service Name</span>
+                        <span class="label-text font-semibold">{{t "new_service.service_name"}}</span>
                     </label>
                     <input type="text" name="service_name" placeholder="my-web-app" 
                            class="input input-bordered w-full" required
                            value="{{.FormData.ServiceName}}"
                            pattern="[a-zA-Z0-9\-]+" title="Only alphanumeric characters and hyphens allowed">
                     <label class="label">
-                        <span class="label-text-alt">Tailscale Admin Consoleで定義したService名</span>
+                        <span class="label-text-alt">{{t "new_service.service_name_help"}}</span>
                     </label>
                 </div>
 
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Protocol</span>
+                        <span class="label-text font-semibold">{{t "new_service.protocol"}}</span>
                     </label>
                     <select name="protocol" class="select select-bordered w-full">
-                        <option value="https" {{if eq .FormData.Protocol "https"}}selected{{end}}>HTTPS (TLS termination)</option>
-                        <option value="http" {{if eq .FormData.Protocol "http"}}selected{{end}}>HTTP</option>
+                        <option value="https" {{if eq .FormData.Protocol "https"}}selected{{end}}>{{t "new_service.protocol_https"}}</option>
+                        <option value="http" {{if eq .FormData.Protocol "http"}}selected{{end}}>{{t "new_service.protocol_http"}}</option>
                     </select>
                 </div>
 
                 <div class="form-control mb-4">
                     <label class="label">
-                        <span class="label-text font-semibold">Expose Port</span>
+                        <span class="label-text font-semibold">{{t "new_service.expose_port"}}</span>
                     </label>
                     <input type="number" name="expose_port" placeholder="443" 
                            class="input input-bordered w-full" required
                            value="{{.FormData.ExposePort}}"
                            min="1" max="65535">
                     <label class="label">
-                        <span class="label-text-alt">外部に公開するポート番号</span>
+                        <span class="label-text-alt">{{t "new_service.expose_port_help"}}</span>
                     </label>
                 </div>
 
                 <div class="form-control mb-6">
                     <label class="label">
-                        <span class="label-text font-semibold">Local Destination</span>
+                        <span class="label-text font-semibold">{{t "new_service.destination"}}</span>
                     </label>
                     <input type="text" name="destination" placeholder="http://localhost:8080" 
                            class="input input-bordered w-full" required
                            value="{{.FormData.Destination}}">
                     <label class="label">
-                        <span class="label-text-alt">転送先のローカルアドレス (例: http://localhost:8080, tcp://localhost:5432)</span>
+                        <span class="label-text-alt">{{t "new_service.destination_help"}}</span>
                     </label>
                 </div>
 
                 <div class="card-actions justify-end">
-                    <button type="submit" class="btn btn-primary">Advertise Service</button>
+                    <button type="submit" class="btn btn-primary">{{t "btn.advertise"}}</button>
                 </div>
             </form>
         </div>
     </div>
 
     <div class="mt-6 p-4 bg-base-200 rounded-lg">
-        <h3 class="font-semibold mb-2">Note</h3>
-        <p class="text-sm opacity-70">
-            Serviceは事前にTailscale Admin Consoleで定義しておく必要があります。
-            このツールは <code>tailscale serve --service</code> コマンドを実行してエンドポイントをadvertiseします。
-        </p>
+        <h3 class="font-semibold mb-2">{{t "new_service.note_title"}}</h3>
+        <p class="text-sm opacity-70">{{t "new_service.note_text"}}</p>
     </div>
 </div>
 {{end}}

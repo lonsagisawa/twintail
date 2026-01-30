@@ -1,23 +1,23 @@
-{{define "title"}}Delete Endpoint{{end}}
+{{define "title"}}{{t "delete_endpoint.title"}}{{end}}
 
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold">Delete Endpoint</h1>
-        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">← Back</a>
+        <h1 class="text-2xl md:text-3xl font-bold">{{t "delete_endpoint.title"}}</h1>
+        <a href="/services/{{.ServiceName}}" class="btn btn-ghost btn-sm">{{t "nav.back"}}</a>
     </div>
 
     <div class="alert alert-warning mb-6">
-        <span>本当にこのエンドポイントを削除しますか？</span>
+        <span>{{t "delete_endpoint.confirm"}}</span>
     </div>
 
     <div class="card bg-base-100 shadow-lg mb-6">
         <div class="card-body">
             <h2 class="card-title text-lg">Endpoint Info</h2>
-            <p class="mb-2"><span class="font-semibold">Service:</span> {{.ServiceName}}</p>
-            <p class="mb-2"><span class="font-semibold">Protocol:</span> <span class="uppercase">{{.Protocol}}</span></p>
-            <p class="mb-2"><span class="font-semibold">Port:</span> {{.ExposePort}}</p>
-            <p><span class="font-semibold">Destination:</span> <code>{{.Destination}}</code></p>
+            <p class="mb-2"><span class="font-semibold">{{t "endpoint.service"}}:</span> {{.ServiceName}}</p>
+            <p class="mb-2"><span class="font-semibold">{{t "endpoint.protocol"}}:</span> <span class="uppercase">{{.Protocol}}</span></p>
+            <p class="mb-2"><span class="font-semibold">{{t "endpoint.port"}}:</span> {{.ExposePort}}</p>
+            <p><span class="font-semibold">{{t "endpoint.destination"}}:</span> <code>{{.Destination}}</code></p>
         </div>
     </div>
 
@@ -26,8 +26,8 @@
         <input type="hidden" name="expose_port" value="{{.ExposePort}}">
         <input type="hidden" name="destination" value="{{.Destination}}">
         <div class="flex gap-2 justify-end">
-            <a href="/services/{{.ServiceName}}" class="btn btn-ghost">Cancel</a>
-            <button type="submit" class="btn btn-error">Delete Endpoint</button>
+            <a href="/services/{{.ServiceName}}" class="btn btn-ghost">{{t "btn.cancel"}}</a>
+            <button type="submit" class="btn btn-error">{{t "btn.delete_endpoint"}}</button>
         </div>
     </form>
 </div>

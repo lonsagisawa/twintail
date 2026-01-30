@@ -1,21 +1,21 @@
-{{define "title"}}Service: {{.Service.Name}}{{end}}
+{{define "title"}}{{.Service.Name}}{{end}}
 
 {{define "content"}}
 <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl md:text-3xl font-bold">{{.Service.Name}}</h1>
         <div class="flex gap-2">
-            <a href="/services/{{.Service.Name}}/delete" class="btn btn-error btn-sm">Delete</a>
-            <a href="/" class="btn btn-ghost btn-sm">← Back</a>
+            <a href="/services/{{.Service.Name}}/delete" class="btn btn-error btn-sm">{{t "btn.delete"}}</a>
+            <a href="/" class="btn btn-ghost btn-sm">{{t "nav.back"}}</a>
         </div>
     </div>
 
     <div class="card bg-base-100 shadow-lg mb-6">
         <div class="card-body">
-            <h2 class="card-title text-lg">Service Info</h2>
-            <p class="mb-2"><span class="font-semibold">Hostname:</span> {{.Service.Hostname}}</p>
+            <h2 class="card-title text-lg">{{t "show_service.service_info"}}</h2>
+            <p class="mb-2"><span class="font-semibold">{{t "show_service.hostname"}}:</span> {{.Service.Hostname}}</p>
             {{if .Service.URL}}
-            <p><span class="font-semibold">URL:</span> <a href="{{.Service.URL}}" target="_blank" class="link hover:underline">{{.Service.URL}}</a></p>
+            <p><span class="font-semibold">{{t "show_service.url"}}:</span> <a href="{{.Service.URL}}" target="_blank" class="link hover:underline">{{.Service.URL}}</a></p>
             {{end}}
         </div>
     </div>
@@ -23,17 +23,17 @@
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="card-title text-lg">Exposed Ports</h2>
-                <a href="/services/{{.Service.Name}}/endpoints/new" class="btn btn-primary btn-sm">+ Add Endpoint</a>
+                <h2 class="card-title text-lg">{{t "show_service.exposed_ports"}}</h2>
+                <a href="/services/{{.Service.Name}}/endpoints/new" class="btn btn-primary btn-sm">{{t "btn.add_endpoint"}}</a>
             </div>
             {{if .Service.Ports}}
             <div class="overflow-x-auto">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Protocol</th>
-                            <th>Port</th>
-                            <th>Local Destination</th>
+                            <th>{{t "show_service.protocol"}}</th>
+                            <th>{{t "show_service.port"}}</th>
+                            <th>{{t "show_service.destination"}}</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -45,9 +45,9 @@
                             <td><code>{{.Destination}}</code></td>
                             <td class="flex gap-1">
                                 <a href="/services/{{$.Service.Name}}/endpoints/edit?protocol={{.Protocol}}&port={{.ExposePort}}&destination={{.Destination}}" 
-                                   class="btn btn-ghost btn-xs">Edit</a>
+                                   class="btn btn-ghost btn-xs">{{t "btn.edit"}}</a>
                                 <a href="/services/{{$.Service.Name}}/endpoints/delete?protocol={{.Protocol}}&port={{.ExposePort}}&destination={{.Destination}}" 
-                                   class="btn btn-error btn-xs">Delete</a>
+                                   class="btn btn-error btn-xs">{{t "btn.delete"}}</a>
                             </td>
                         </tr>
                         {{end}}
@@ -55,7 +55,7 @@
                 </table>
             </div>
             {{else}}
-            <p class="text-sm opacity-70">No exposed ports configured.</p>
+            <p class="text-sm opacity-70">{{t "show_service.no_ports"}}</p>
             {{end}}
         </div>
     </div>

@@ -12,6 +12,17 @@ import (
 	"github.com/labstack/echo/v5/middleware"
 )
 
+func i18nMiddleware() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c *echo.Context) error {
+			acceptLang := c.Request().Header.Get("Accept-Language")
+			lang := services.ParseAcceptLanguage(acceptLang)
+			c.Set("lang", lang)
+			return next(c)
+		}
+	}
+}
+
 func liveReloadMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
@@ -44,6 +55,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.RequestLogger())
+	e.Use(i18nMiddleware())
 	e.Use(liveReloadMiddleware())
 	e.Use(noCacheMiddleware())
 

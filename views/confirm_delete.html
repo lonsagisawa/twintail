@@ -1,16 +1,16 @@
-{{define "title"}}Delete Service: {{.Service.Name}}{{end}}
+{{define "title"}}{{t "delete_service.title"}}: {{.Service.Name}}{{end}}
 
 {{define "content"}}
 <div class="max-w-md mx-auto">
     <div class="card bg-base-100 shadow-lg">
         <div class="card-body">
-            <h1 class="card-title text-xl text-error">Delete Service</h1>
-            <p class="py-4">Are you sure you want to delete the service <strong>{{.Service.Name}}</strong>?</p>
-            <p class="text-sm opacity-70">This will remove all endpoint configurations for this service. This action cannot be undone.</p>
+            <h1 class="card-title text-xl text-error">{{t "delete_service.title"}}</h1>
+            <p class="py-4">{{t "delete_service.confirm"}} <strong>{{.Service.Name}}</strong>?</p>
+            <p class="text-sm opacity-70">{{t "delete_service.warning"}}</p>
             <div class="card-actions justify-end mt-6">
-                <a href="/services/{{.Service.Name}}" class="btn btn-ghost">Cancel</a>
+                <a href="/services/{{.Service.Name}}" class="btn btn-ghost">{{t "btn.cancel"}}</a>
                 <form action="/services/{{.Service.Name}}/delete" method="POST" class="inline">
-                    <button type="submit" class="btn btn-error">Delete</button>
+                    <button type="submit" class="btn btn-error">{{t "btn.delete"}}</button>
                 </form>
             </div>
         </div>
