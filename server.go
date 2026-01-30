@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"os"
 
-	"twintail/controllers"
+	"twintail/handlers"
 	"twintail/services"
 
 	"github.com/joho/godotenv"
@@ -53,21 +53,21 @@ func main() {
 	e.Validator = NewCustomValidator()
 
 	tailscaleSvc := services.NewTailscaleService()
-	serviceCtrl := controllers.NewServiceController(tailscaleSvc)
-	endpointCtrl := controllers.NewEndpointController(tailscaleSvc)
+	serviceHandler := handlers.NewServiceHandler(tailscaleSvc)
+	endpointHandler := handlers.NewEndpointHandler(tailscaleSvc)
 
-	e.GET("/", serviceCtrl.Index)
-	e.GET("/services/new", serviceCtrl.Create)
-	e.POST("/services/new", serviceCtrl.Store)
-	e.GET("/services/:name", serviceCtrl.Show)
-	e.GET("/services/:name/delete", serviceCtrl.Delete)
-	e.POST("/services/:name/delete", serviceCtrl.Destroy)
-	e.GET("/services/:name/endpoints/new", endpointCtrl.Create)
-	e.POST("/services/:name/endpoints/new", endpointCtrl.Store)
-	e.GET("/services/:name/endpoints/edit", endpointCtrl.Edit)
-	e.POST("/services/:name/endpoints/edit", endpointCtrl.Update)
-	e.GET("/services/:name/endpoints/delete", endpointCtrl.Delete)
-	e.POST("/services/:name/endpoints/delete", endpointCtrl.Destroy)
+	e.GET("/", serviceHandler.Index)
+	e.GET("/services/new", serviceHandler.Create)
+	e.POST("/services/new", serviceHandler.Store)
+	e.GET("/services/:name", serviceHandler.Show)
+	e.GET("/services/:name/delete", serviceHandler.Delete)
+	e.POST("/services/:name/delete", serviceHandler.Destroy)
+	e.GET("/services/:name/endpoints/new", endpointHandler.Create)
+	e.POST("/services/:name/endpoints/new", endpointHandler.Store)
+	e.GET("/services/:name/endpoints/edit", endpointHandler.Edit)
+	e.POST("/services/:name/endpoints/edit", endpointHandler.Update)
+	e.GET("/services/:name/endpoints/delete", endpointHandler.Delete)
+	e.POST("/services/:name/endpoints/delete", endpointHandler.Destroy)
 
 	e.StaticFS("/static", getStaticFS())
 
