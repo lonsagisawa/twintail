@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"twintail/services"
@@ -13,18 +13,18 @@ type TailscaleService interface {
 	ClearService(name string) error
 }
 
-type ServiceController struct {
+type ServiceHandler struct {
 	tailscale TailscaleService
 }
 
-func NewServiceController(tailscale TailscaleService) *ServiceController {
-	return &ServiceController{
+func NewServiceHandler(tailscale TailscaleService) *ServiceHandler {
+	return &ServiceHandler{
 		tailscale: tailscale,
 	}
 }
 
-func (c *ServiceController) Index(ctx *echo.Context) error {
-	svcs, err := c.tailscale.GetServeStatus()
+func (h *ServiceHandler) Index(ctx *echo.Context) error {
+	svcs, err := h.tailscale.GetServeStatus()
 	if err != nil {
 		return ctx.String(500, "Failed to get serve status: "+err.Error())
 	}
@@ -40,13 +40,13 @@ type NewServiceFormData struct {
 	Destination string `form:"destination" validate:"required"`
 }
 
-func (c *ServiceController) Create(ctx *echo.Context) error {
+func (h *ServiceHandler) Create(ctx *echo.Context) error {
 	return ctx.Render(200, "new_service.html", map[string]any{
 		"FormData": NewServiceFormData{Protocol: "https", ExposePort: "443"},
 	})
 }
 
-func (c *ServiceController) Store(ctx *echo.Context) error {
+func (h *ServiceHandler) Store(ctx *echo.Context) error {
 	var formData NewServiceFormData
 	if err := ctx.Bind(&formData); err != nil {
 		return ctx.Render(200, "new_service.html", map[string]any{
@@ -68,7 +68,7 @@ func (c *ServiceController) Store(ctx *echo.Context) error {
 		Destination: formData.Destination,
 	}
 
-	if err := c.tailscale.AdvertiseService(params); err != nil {
+	if err := h.tailscale.AdvertiseService(params); err != nil {
 		return ctx.Render(200, "new_service.html", map[string]any{
 			"Error":    err.Error(),
 			"FormData": formData,
@@ -78,9 +78,9 @@ func (c *ServiceController) Store(ctx *echo.Context) error {
 	return ctx.Redirect(303, "/services/"+formData.ServiceName)
 }
 
-func (c *ServiceController) Show(ctx *echo.Context) error {
+func (h *ServiceHandler) Show(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	svc, err := c.tailscale.GetServiceByName(name)
+	svc, err := h.tailscale.GetServiceByName(name)
 	if err != nil {
 		return ctx.String(500, "Failed to get service: "+err.Error())
 	}
@@ -92,9 +92,9 @@ func (c *ServiceController) Show(ctx *echo.Context) error {
 	})
 }
 
-func (c *ServiceController) Delete(ctx *echo.Context) error {
+func (h *ServiceHandler) Delete(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	svc, err := c.tailscale.GetServiceByName(name)
+	svc, err := h.tailscale.GetServiceByName(name)
 	if err != nil {
 		return ctx.String(500, "Failed to get service: "+err.Error())
 	}
@@ -106,9 +106,9 @@ func (c *ServiceController) Delete(ctx *echo.Context) error {
 	})
 }
 
-func (c *ServiceController) Destroy(ctx *echo.Context) error {
+func (h *ServiceHandler) Destroy(ctx *echo.Context) error {
 	name := ctx.Param("name")
-	if err := c.tailscale.ClearService(name); err != nil {
+	if err := h.tailscale.ClearService(name); err != nil {
 		return ctx.String(500, "Failed to delete service: "+err.Error())
 	}
 	return ctx.Redirect(303, "/")

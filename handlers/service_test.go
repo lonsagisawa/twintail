@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"io"
@@ -9,8 +9,21 @@ import (
 
 	"twintail/services"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
 )
+
+type testValidator struct {
+	validator *validator.Validate
+}
+
+func (tv *testValidator) Validate(i any) error {
+	return tv.validator.Struct(i)
+}
+
+func newTestValidator() *testValidator {
+	return &testValidator{validator: validator.New()}
+}
 
 type mockTailscaleService struct {
 	services      []services.ServiceView
@@ -47,7 +60,7 @@ func TestIndex_Success(t *testing.T) {
 			{Name: "web-app", HTTPSUrl: "https://example.com", Proxy: "http://localhost:3000"},
 		},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -69,7 +82,7 @@ func TestIndex_GetServeStatusError(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		advertiseErr: &services.CommandError{Message: "Failed to get serve status", Err: nil},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -93,7 +106,7 @@ func TestIndex_GetServeStatusError(t *testing.T) {
 
 func TestCreate(t *testing.T) {
 	mockSvc := &mockTailscaleService{}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -115,10 +128,11 @@ func TestStore_Success(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		advertiseErr: nil,
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
+	e.Validator = newTestValidator()
 	form := strings.NewReader("service_name=my-service&protocol=https&expose_port=443&destination=http://localhost:8080")
 	req := httptest.NewRequest(http.MethodPost, "/services/new", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -139,7 +153,7 @@ func TestStore_Failure(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		advertiseErr: &services.CommandError{Message: "Service already exists", Err: nil},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -170,7 +184,7 @@ func TestShow_Success(t *testing.T) {
 			},
 		},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -189,7 +203,7 @@ func TestShow_NotFound(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		serviceDetail: nil,
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -212,7 +226,7 @@ func TestDelete_Success(t *testing.T) {
 			URL:      "https://example.com",
 		},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -231,7 +245,7 @@ func TestDelete_NotFound(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		serviceDetail: nil,
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -250,7 +264,7 @@ func TestDestroy_Success(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		clearErr: nil,
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -272,7 +286,7 @@ func TestDestroy_Failure(t *testing.T) {
 	mockSvc := &mockTailscaleService{
 		clearErr: &services.CommandError{Message: "Failed to clear service", Err: nil},
 	}
-	ctrl := NewServiceController(mockSvc)
+	ctrl := NewServiceHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}

@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"twintail/services"
@@ -13,12 +13,12 @@ type EndpointService interface {
 	UpdateEndpoint(params services.UpdateEndpointParams) error
 }
 
-type EndpointController struct {
+type EndpointHandler struct {
 	tailscale EndpointService
 }
 
-func NewEndpointController(tailscale EndpointService) *EndpointController {
-	return &EndpointController{
+func NewEndpointHandler(tailscale EndpointService) *EndpointHandler {
+	return &EndpointHandler{
 		tailscale: tailscale,
 	}
 }
@@ -29,7 +29,7 @@ type EndpointFormData struct {
 	Destination string `form:"destination" validate:"required"`
 }
 
-func (c *EndpointController) Create(ctx *echo.Context) error {
+func (h *EndpointHandler) Create(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	return ctx.Render(200, "new_endpoint.html", map[string]any{
 		"ServiceName": name,
@@ -37,7 +37,7 @@ func (c *EndpointController) Create(ctx *echo.Context) error {
 	})
 }
 
-func (c *EndpointController) Store(ctx *echo.Context) error {
+func (h *EndpointHandler) Store(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	var formData EndpointFormData
 	if err := ctx.Bind(&formData); err != nil {
@@ -62,7 +62,7 @@ func (c *EndpointController) Store(ctx *echo.Context) error {
 		Destination: formData.Destination,
 	}
 
-	if err := c.tailscale.AddEndpoint(params); err != nil {
+	if err := h.tailscale.AddEndpoint(params); err != nil {
 		return ctx.Render(200, "new_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
@@ -73,7 +73,7 @@ func (c *EndpointController) Store(ctx *echo.Context) error {
 	return ctx.Redirect(303, "/services/"+name)
 }
 
-func (c *EndpointController) Delete(ctx *echo.Context) error {
+func (h *EndpointHandler) Delete(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
@@ -87,7 +87,7 @@ func (c *EndpointController) Delete(ctx *echo.Context) error {
 	})
 }
 
-func (c *EndpointController) Destroy(ctx *echo.Context) error {
+func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	params := services.EndpointParams{
 		ServiceName: name,
@@ -96,11 +96,11 @@ func (c *EndpointController) Destroy(ctx *echo.Context) error {
 		Destination: ctx.FormValue("destination"),
 	}
 
-	if err := c.tailscale.RemoveEndpoint(params); err != nil {
+	if err := h.tailscale.RemoveEndpoint(params); err != nil {
 		return ctx.String(500, "Failed to delete endpoint: "+err.Error())
 	}
 
-	svc, _ := c.tailscale.GetServiceByName(name)
+	svc, _ := h.tailscale.GetServiceByName(name)
 	if svc == nil {
 		return ctx.Redirect(303, "/")
 	}
@@ -115,7 +115,7 @@ type EditEndpointFormData struct {
 	NewDestination string `form:"new_destination" validate:"required"`
 }
 
-func (c *EndpointController) Edit(ctx *echo.Context) error {
+func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
@@ -132,7 +132,7 @@ func (c *EndpointController) Edit(ctx *echo.Context) error {
 	})
 }
 
-func (c *EndpointController) Update(ctx *echo.Context) error {
+func (h *EndpointHandler) Update(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	var formData EditEndpointFormData
 	if err := ctx.Bind(&formData); err != nil {
@@ -158,7 +158,7 @@ func (c *EndpointController) Update(ctx *echo.Context) error {
 		NewDestination: formData.NewDestination,
 	}
 
-	if err := c.tailscale.UpdateEndpoint(params); err != nil {
+	if err := h.tailscale.UpdateEndpoint(params); err != nil {
 		return ctx.Render(200, "edit_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),

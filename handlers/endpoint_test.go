@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"net/http"
@@ -8,8 +8,21 @@ import (
 
 	"twintail/services"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
 )
+
+type endpointTestValidator struct {
+	validator *validator.Validate
+}
+
+func (tv *endpointTestValidator) Validate(i any) error {
+	return tv.validator.Struct(i)
+}
+
+func newEndpointTestValidator() *endpointTestValidator {
+	return &endpointTestValidator{validator: validator.New()}
+}
 
 type mockEndpointService struct {
 	serviceDetail *services.ServiceDetailView
@@ -34,7 +47,7 @@ func (m *mockEndpointService) UpdateEndpoint(params services.UpdateEndpointParam
 
 func TestEndpointCreate(t *testing.T) {
 	mockSvc := &mockEndpointService{}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -53,10 +66,11 @@ func TestEndpointStore_Success(t *testing.T) {
 	mockSvc := &mockEndpointService{
 		endpointErr: nil,
 	}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
+	e.Validator = newEndpointTestValidator()
 	e.POST("/services/:name/endpoints/new", ctrl.Store)
 
 	form := strings.NewReader("protocol=https&expose_port=443&destination=http://localhost:8080")
@@ -77,7 +91,7 @@ func TestEndpointStore_Failure(t *testing.T) {
 	mockSvc := &mockEndpointService{
 		endpointErr: &services.CommandError{Message: "Failed to add endpoint", Err: nil},
 	}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -96,7 +110,7 @@ func TestEndpointStore_Failure(t *testing.T) {
 
 func TestEndpointDelete(t *testing.T) {
 	mockSvc := &mockEndpointService{}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -122,7 +136,7 @@ func TestEndpointDestroy_Success_ServiceExists(t *testing.T) {
 			},
 		},
 	}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -147,7 +161,7 @@ func TestEndpointDestroy_Success_ServiceGone(t *testing.T) {
 		endpointErr:   nil,
 		serviceDetail: nil,
 	}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
@@ -171,7 +185,7 @@ func TestEndpointDestroy_Failure(t *testing.T) {
 	mockSvc := &mockEndpointService{
 		endpointErr: &services.CommandError{Message: "Failed to remove endpoint", Err: nil},
 	}
-	ctrl := NewEndpointController(mockSvc)
+	ctrl := NewEndpointHandler(mockSvc)
 
 	e := echo.New()
 	e.Renderer = &mockRenderer{}
