@@ -691,3 +691,152 @@ func TestRemoveEndpoint_Failure(t *testing.T) {
 		t.Errorf("expected message 'remove failed', got '%s'", endpointErr.Message)
 	}
 }
+
+func TestUpdateEndpoint_Success(t *testing.T) {
+	mockCommandError = nil
+	mockRemoveCommandError = nil
+	defer func() {
+		mockCommandError = nil
+		mockRemoveCommandError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := UpdateEndpointParams{
+		ServiceName:    "my-service",
+		Protocol:       "https",
+		ExposePort:     "443",
+		OldDestination: "http://localhost:8080",
+		NewDestination: "http://localhost:9000",
+	}
+	err := svc.UpdateEndpoint(params)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestUpdateEndpoint_RemoveFailure(t *testing.T) {
+	mockRemoveCommandError = errors.New("remove failed")
+	defer func() {
+		mockRemoveCommandError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := UpdateEndpointParams{
+		ServiceName:    "my-service",
+		Protocol:       "https",
+		ExposePort:     "443",
+		OldDestination: "http://localhost:8080",
+		NewDestination: "http://localhost:9000",
+	}
+	err := svc.UpdateEndpoint(params)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestUpdateEndpoint_AddFailure(t *testing.T) {
+	mockRemoveCommandError = nil
+	mockCommandError = errors.New("add failed")
+	defer func() {
+		mockRemoveCommandError = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommandWithEndpoint()()
+
+	svc := NewTailscaleService()
+	params := UpdateEndpointParams{
+		ServiceName:    "my-service",
+		Protocol:       "https",
+		ExposePort:     "443",
+		OldDestination: "http://localhost:8080",
+		NewDestination: "http://localhost:9000",
+	}
+	err := svc.UpdateEndpoint(params)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestIsTailscaleNotInstalledError_NilError(t *testing.T) {
+	result := IsTailscaleNotInstalledError(nil)
+	if result {
+		t.Error("expected false for nil error")
+	}
+}
+
+func TestIsTailscaleNotInstalledError_DirectError(t *testing.T) {
+	result := IsTailscaleNotInstalledError(ErrTailscaleNotInstalled)
+	if !result {
+		t.Error("expected true for ErrTailscaleNotInstalled")
+	}
+}
+
+func TestIsTailscaleNotInstalledError_OtherError(t *testing.T) {
+	result := IsTailscaleNotInstalledError(errors.New("some other error"))
+	if result {
+		t.Error("expected false for unrelated error")
+	}
+}
+
+func TestCheckInstalled_Success(t *testing.T) {
+	oldExecCommand := execCommand
+	defer func() { execCommand = oldExecCommand }()
+	execCommand = func(name string, args ...string) interface {
+		Output() ([]byte, error)
+		CombinedOutput() ([]byte, error)
+	} {
+		return &mockCmd{output: []byte("1.50.0")}
+	}
+
+	svc := NewTailscaleService()
+	err := svc.CheckInstalled()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+}
+
+func TestCheckInstalled_CommandFailed(t *testing.T) {
+	oldExecCommand := execCommand
+	defer func() { execCommand = oldExecCommand }()
+	execCommand = func(name string, args ...string) interface {
+		Output() ([]byte, error)
+		CombinedOutput() ([]byte, error)
+	} {
+		return &mockCmd{err: errors.New("command failed")}
+	}
+
+	svc := NewTailscaleService()
+	err := svc.CheckInstalled()
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestCommandError_ErrorWithMessage(t *testing.T) {
+	err := &CommandError{
+		Message: "custom error message",
+		Err:     errors.New("underlying error"),
+	}
+
+	if err.Error() != "custom error message" {
+		t.Errorf("expected 'custom error message', got '%s'", err.Error())
+	}
+}
+
+func TestCommandError_ErrorWithoutMessage(t *testing.T) {
+	err := &CommandError{
+		Message: "",
+		Err:     errors.New("underlying error"),
+	}
+
+	if err.Error() != "underlying error" {
+		t.Errorf("expected 'underlying error', got '%s'", err.Error())
+	}
+}
