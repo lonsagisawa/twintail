@@ -1,6 +1,6 @@
 //go:build prod
 
-package main
+package server
 
 import (
 	"embed"
@@ -10,7 +10,7 @@ import (
 //go:embed static all:static/dist
 var staticFS embed.FS
 
-func getStaticFS() fs.FS {
+func GetStaticFS() fs.FS {
 	sub, _ := fs.Sub(staticFS, "static")
 	return sub
 }

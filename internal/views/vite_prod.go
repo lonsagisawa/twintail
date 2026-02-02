@@ -1,6 +1,6 @@
 //go:build prod
 
-package main
+package views
 
 import (
 	"encoding/json"
@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"log"
 	"sync"
+	"twintail/internal/server"
 )
 
 type manifestEntry struct {
@@ -21,7 +22,7 @@ var (
 )
 
 func loadManifest() {
-	b, err := fs.ReadFile(getStaticFS(), "dist/.vite/manifest.json")
+	b, err := fs.ReadFile(server.GetStaticFS(), "dist/.vite/manifest.json")
 	if err != nil {
 		log.Fatalf("failed to read vite manifest: %v", err)
 	}

@@ -1,6 +1,6 @@
 //go:build prod
 
-package main
+package views
 
 import (
 	"embed"
@@ -9,7 +9,7 @@ import (
 	"io/fs"
 	"strings"
 
-	"twintail/services"
+	"twintail/internal/services"
 
 	"github.com/labstack/echo/v5"
 )
@@ -72,7 +72,7 @@ func (t *TemplateRenderer) Render(c *echo.Context, w io.Writer, name string, dat
 
 var globalI18n *services.I18n
 
-func parseTemplates() *TemplateRenderer {
-	globalI18n = loadI18n()
+func ParseTemplates() *TemplateRenderer {
+	globalI18n = services.LoadI18n()
 	return NewTemplateRenderer(globalI18n)
 }

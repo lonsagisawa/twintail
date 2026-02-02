@@ -1,6 +1,6 @@
 //go:build !prod
 
-package main
+package views
 
 import (
 	"html/template"

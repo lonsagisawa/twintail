@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"twintail/services"
+	"twintail/internal/services"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"
@@ -55,6 +55,11 @@ func (m *mockTailscaleService) ClearService(name string) error {
 type mockRenderer struct{}
 
 func (m *mockRenderer) Render(ctx *echo.Context, w io.Writer, name string, data any) error {
+	if d, ok := data.(map[string]any); ok {
+		if errMsg, ok := d["Error"].(string); ok {
+			_, _ = w.Write([]byte(errMsg))
+		}
+	}
 	return nil
 }
 
