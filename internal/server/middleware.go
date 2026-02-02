@@ -27,43 +27,10 @@ func I18nMiddleware() echo.MiddlewareFunc {
 func LiveReloadMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			c.Set("liveReloadScript", template.HTML(LiveReloadScript()))
+			c.Set("liveReloadScript", template.HTML(liveReloadScript()))
 			return next(c)
 		}
 	}
-}
-
-func LiveReloadScript() string {
-	return `<script>
-(function() {
-	let lastServerId = null;
-	let retryCount = 0;
-	
-	function connect() {
-		const es = new EventSource('/dev/reload');
-		
-		es.onmessage = function(e) {
-			const serverId = e.data;
-			if (lastServerId !== null && lastServerId !== serverId) {
-				console.log('[livereload] server restarted, reloading...');
-				location.reload();
-			}
-			lastServerId = serverId;
-			retryCount = 0;
-		};
-		
-		es.onerror = function() {
-			es.close();
-			retryCount++;
-			const delay = Math.min(1000 * retryCount, 5000);
-			console.log('[livereload] connection lost, retrying in ' + delay + 'ms...');
-			setTimeout(connect, delay);
-		};
-	}
-	
-	connect();
-})();
-</script>`
 }
 
 func NoCacheMiddleware() echo.MiddlewareFunc {
