@@ -32,6 +32,10 @@ type mockTailscaleService struct {
 	clearErr      error
 }
 
+func (m *mockTailscaleService) CheckInstalled() error {
+	return nil
+}
+
 func (m *mockTailscaleService) GetServeStatus() ([]services.ServiceView, error) {
 	return m.services, m.advertiseErr
 }

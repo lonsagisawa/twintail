@@ -29,6 +29,10 @@ type mockEndpointService struct {
 	endpointErr   error
 }
 
+func (m *mockEndpointService) CheckInstalled() error {
+	return nil
+}
+
 func (m *mockEndpointService) GetServiceByName(name string) (*services.ServiceDetailView, error) {
 	return m.serviceDetail, nil
 }

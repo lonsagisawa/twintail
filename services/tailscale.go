@@ -2,10 +2,40 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"os/exec"
 	"sort"
 	"strings"
 )
+
+var ErrTailscaleNotInstalled = errors.New("tailscale CLI not installed")
+
+func IsTailscaleNotInstalledError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, ErrTailscaleNotInstalled) {
+		return true
+	}
+	var execErr *exec.Error
+	if errors.As(err, &execErr) {
+		return errors.Is(execErr.Err, exec.ErrNotFound)
+	}
+	return false
+}
+
+func (s *TailscaleService) CheckInstalled() error {
+	cmd := execCommand("tailscale", "version")
+	_, err := cmd.Output()
+	if err != nil {
+		var execErr *exec.Error
+		if errors.As(err, &execErr) && errors.Is(execErr.Err, exec.ErrNotFound) {
+			return ErrTailscaleNotInstalled
+		}
+		return err
+	}
+	return nil
+}
 
 var execCommand = func(name string, arg ...string) interface {
 	Output() ([]byte, error)

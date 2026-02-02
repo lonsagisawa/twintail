@@ -52,5 +52,17 @@
   "settings.title": "Settings",
   "settings.language": "Language",
   "settings.language_help": "Select your preferred language",
-  "settings.save": "Save"
+  "settings.save": "Save",
+
+  "not_installed.title": "Tailscale Not Installed",
+  "not_installed.alert": "Tailscale CLI is not installed on this system.",
+  "not_installed.description": "Twintail requires the Tailscale CLI to manage services. Please install Tailscale to continue.",
+  "not_installed.install_title": "Install Tailscale",
+  "not_installed.install_description": "Visit the official Tailscale website to download and install Tailscale for your operating system.",
+  "not_installed.download_button": "Download Tailscale",
+  "not_installed.after_install_title": "After Installation",
+  "not_installed.step1": "Run 'tailscale up' to connect to your Tailscale network",
+  "not_installed.step2": "Ensure the Tailscale daemon is running",
+  "not_installed.step3": "Refresh this page to start managing services",
+  "not_installed.retry_button": "Retry"
 }

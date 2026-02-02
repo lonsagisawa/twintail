@@ -8,6 +8,7 @@ import (
 )
 
 type EndpointService interface {
+	CheckInstalled() error
 	GetServiceByName(name string) (*services.ServiceDetailView, error)
 	AddEndpoint(params services.EndpointParams) error
 	RemoveEndpoint(params services.EndpointParams) error
@@ -25,6 +26,11 @@ func NewEndpointHandler(tailscale EndpointService) *EndpointHandler {
 }
 
 func (h *EndpointHandler) Create(ctx *echo.Context) error {
+	if err := h.tailscale.CheckInstalled(); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
+	}
 	name := ctx.Param("name")
 	var req requests.StoreEndpointRequest
 	return ctx.Render(200, "new_endpoint.html", map[string]any{
@@ -45,6 +51,9 @@ func (h *EndpointHandler) Store(ctx *echo.Context) error {
 	}
 
 	if err := h.tailscale.AddEndpoint(req.ToParams(name)); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
 		return ctx.Render(200, "new_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
@@ -56,6 +65,11 @@ func (h *EndpointHandler) Store(ctx *echo.Context) error {
 }
 
 func (h *EndpointHandler) Delete(ctx *echo.Context) error {
+	if err := h.tailscale.CheckInstalled(); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
+	}
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
@@ -77,6 +91,9 @@ func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 	}
 
 	if err := h.tailscale.RemoveEndpoint(req.ToParams(name)); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
 		return ctx.String(500, "Failed to delete endpoint: "+err.Error())
 	}
 
@@ -89,6 +106,11 @@ func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 }
 
 func (h *EndpointHandler) Edit(ctx *echo.Context) error {
+	if err := h.tailscale.CheckInstalled(); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
+	}
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
@@ -117,6 +139,9 @@ func (h *EndpointHandler) Update(ctx *echo.Context) error {
 	}
 
 	if err := h.tailscale.UpdateEndpoint(req.ToParams(name)); err != nil {
+		if services.IsTailscaleNotInstalledError(err) {
+			return ctx.Render(200, "tailscale_not_installed.html", nil)
+		}
 		return ctx.Render(200, "edit_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),

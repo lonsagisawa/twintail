@@ -52,5 +52,17 @@
   "settings.title": "設定",
   "settings.language": "言語",
   "settings.language_help": "表示言語を選択してください",
-  "settings.save": "保存"
+  "settings.save": "保存",
+
+  "not_installed.title": "Tailscaleがインストールされていません",
+  "not_installed.alert": "このシステムにTailscale CLIがインストールされていません。",
+  "not_installed.description": "Twintailはサービスを管理するためにTailscale CLIを必要とします。続行するにはTailscaleをインストールしてください。",
+  "not_installed.install_title": "Tailscaleをインストール",
+  "not_installed.install_description": "公式Tailscaleウェブサイトから、お使いのOSに対応したTailscaleをダウンロードしてインストールしてください。",
+  "not_installed.download_button": "Tailscaleをダウンロード",
+  "not_installed.after_install_title": "インストール後の手順",
+  "not_installed.step1": "'tailscale up' を実行してTailscaleネットワークに接続",
+  "not_installed.step2": "Tailscaleデーモンが実行中であることを確認",
+  "not_installed.step3": "このページを更新してサービス管理を開始",
+  "not_installed.retry_button": "再試行"
 }
