@@ -3,10 +3,10 @@
 build: build-frontend build-linux-amd64 build-linux-arm64
 
 build-linux-amd64:
-	GOOS=linux GOARCH=amd64 go build -tags prod -ldflags="-s -w" -o twintail-linux-amd64
+	GOOS=linux GOARCH=amd64 go build -tags prod -ldflags="-s -w" -o twintail-linux-amd64 ./cmd/server
 
 build-linux-arm64:
-	GOOS=linux GOARCH=arm64 go build -tags prod -ldflags="-s -w" -o twintail-linux-arm64
+	GOOS=linux GOARCH=arm64 go build -tags prod -ldflags="-s -w" -o twintail-linux-arm64 ./cmd/server
 
 build-frontend:
 	npm run build

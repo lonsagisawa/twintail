@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	"twintail/requests"
-	"twintail/services"
+	"net/http"
+	"twintail/internal/requests"
+	"twintail/internal/services"
 
 	"github.com/labstack/echo/v5"
 )
@@ -27,13 +28,11 @@ func NewEndpointHandler(tailscale EndpointService) *EndpointHandler {
 
 func (h *EndpointHandler) Create(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
+		return err
 	}
 	name := ctx.Param("name")
 	var req requests.StoreEndpointRequest
-	return ctx.Render(200, "new_endpoint.html", map[string]any{
+	return ctx.Render(http.StatusOK, "new_endpoint.html", map[string]any{
 		"ServiceName": name,
 		"FormData":    req.Default(),
 	})
@@ -51,10 +50,7 @@ func (h *EndpointHandler) Store(ctx *echo.Context) error {
 	}
 
 	if err := h.tailscale.AddEndpoint(req.ToParams(name)); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
-		return ctx.Render(200, "new_endpoint.html", map[string]any{
+		return ctx.Render(http.StatusOK, "new_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
 			"FormData":    req,
@@ -66,16 +62,14 @@ func (h *EndpointHandler) Store(ctx *echo.Context) error {
 
 func (h *EndpointHandler) Delete(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
+		return err
 	}
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
 	destination := ctx.QueryParam("destination")
 
-	return ctx.Render(200, "confirm_delete_endpoint.html", map[string]any{
+	return ctx.Render(http.StatusOK, "confirm_delete_endpoint.html", map[string]any{
 		"ServiceName": name,
 		"Protocol":    protocol,
 		"ExposePort":  exposePort,
@@ -87,14 +81,11 @@ func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 	name := ctx.Param("name")
 	var req requests.DestroyEndpointRequest
 	if err := req.FromContext(ctx); err != nil {
-		return ctx.String(500, "Invalid request: "+err.Error())
+		return ctx.String(http.StatusInternalServerError, "Invalid request: "+err.Error())
 	}
 
 	if err := h.tailscale.RemoveEndpoint(req.ToParams(name)); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
-		return ctx.String(500, "Failed to delete endpoint: "+err.Error())
+		return ctx.String(http.StatusInternalServerError, "Failed to delete endpoint: "+err.Error())
 	}
 
 	svc, _ := h.tailscale.GetServiceByName(name)
@@ -107,16 +98,14 @@ func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
 
 func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
+		return err
 	}
 	name := ctx.Param("name")
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
 	destination := ctx.QueryParam("destination")
 
-	return ctx.Render(200, "edit_endpoint.html", map[string]any{
+	return ctx.Render(http.StatusOK, "edit_endpoint.html", map[string]any{
 		"ServiceName": name,
 		"FormData": requests.UpdateEndpointRequest{
 			Protocol:       protocol,
@@ -139,15 +128,12 @@ func (h *EndpointHandler) Update(ctx *echo.Context) error {
 	}
 
 	if err := h.tailscale.UpdateEndpoint(req.ToParams(name)); err != nil {
-		if services.IsTailscaleNotInstalledError(err) {
-			return ctx.Render(200, "tailscale_not_installed.html", nil)
-		}
-		return ctx.Render(200, "edit_endpoint.html", map[string]any{
+		return ctx.Render(http.StatusOK, "edit_endpoint.html", map[string]any{
 			"ServiceName": name,
 			"Error":       err.Error(),
 			"FormData":    req,
 		})
 	}
 
-	return ctx.Redirect(303, "/services/"+name)
+	return ctx.Redirect(http.StatusSeeOther, "/services/"+name)
 }

@@ -1,0 +1,11 @@
+{
+  "assets/main.ts": {
+    "file": "assets/app-CIrKfCdx.js",
+    "name": "app",
+    "src": "assets/main.ts",
+    "isEntry": true,
+    "css": [
+      "assets/app-Bz5D08jg.css"
+    ]
+  }
+}

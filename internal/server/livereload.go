@@ -1,6 +1,6 @@
 //go:build !prod
 
-package main
+package server
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 
 var serverStartTime = fmt.Sprintf("%d", time.Now().UnixNano())
 
-func setupLiveReload(e *echo.Echo) {
+func SetupLiveReload(e *echo.Echo) {
 	e.GET("/dev/reload", liveReloadHandler)
 }
 

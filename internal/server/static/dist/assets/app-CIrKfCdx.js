@@ -1,0 +1,1 @@
+function o(){const t=document.querySelector('select[name="protocol"]'),e=document.querySelector('input[name="expose_port"]');!t||!e||t.addEventListener("change",function(){this.value==="https"?e.value="443":this.value==="http"&&(e.value="80")})}document.addEventListener("DOMContentLoaded",()=>{o()});

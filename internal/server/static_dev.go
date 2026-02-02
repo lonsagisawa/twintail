@@ -1,14 +1,14 @@
 //go:build !prod
 
-package main
+package server
 
 import (
 	"io/fs"
 	"os"
 )
 
-func getStaticFS() fs.FS {
-	return os.DirFS("static")
+func GetStaticFS() fs.FS {
+	return os.DirFS("internal/server/static")
 }
 
 func noCacheEnabled() bool {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"twintail/services"
+	"twintail/internal/services"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v5"

@@ -1,7 +1,7 @@
 package requests
 
 import (
-	"twintail/services"
+	"twintail/internal/services"
 
 	"github.com/labstack/echo/v5"
 )

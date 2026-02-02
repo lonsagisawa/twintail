@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"twintail/requests"
-	"twintail/services"
+	"twintail/internal/requests"
+	"twintail/internal/services"
 
 	"github.com/labstack/echo/v5"
 )
@@ -18,7 +18,7 @@ func NewSettingsHandler() *SettingsHandler {
 
 func (h *SettingsHandler) Show(ctx *echo.Context) error {
 	currentLang := ctx.Get("lang").(string)
-	return ctx.Render(200, "settings.html", map[string]any{
+	return ctx.Render(http.StatusOK, "settings.html", map[string]any{
 		"CurrentLang": currentLang,
 		"Languages":   services.GetSupportedLanguages(),
 	})
@@ -27,7 +27,7 @@ func (h *SettingsHandler) Show(ctx *echo.Context) error {
 func (h *SettingsHandler) Update(ctx *echo.Context) error {
 	var req requests.UpdateSettingsRequest
 	if err := req.FromContext(ctx); err != nil {
-		return ctx.Redirect(303, "/settings")
+		return ctx.Redirect(http.StatusSeeOther, "/settings")
 	}
 
 	cookie := &http.Cookie{
@@ -40,5 +40,5 @@ func (h *SettingsHandler) Update(ctx *echo.Context) error {
 	}
 	ctx.SetCookie(cookie)
 
-	return ctx.Redirect(303, "/settings")
+	return ctx.Redirect(http.StatusSeeOther, "/settings")
 }
