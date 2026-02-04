@@ -25,12 +25,13 @@ func newEndpointTestValidator() *endpointTestValidator {
 }
 
 type mockEndpointService struct {
-	serviceDetail *services.ServiceDetailView
-	endpointErr   error
+	serviceDetail     *services.ServiceDetailView
+	endpointErr       error
+	checkInstalledErr error
 }
 
 func (m *mockEndpointService) CheckInstalled() error {
-	return nil
+	return m.checkInstalledErr
 }
 
 func (m *mockEndpointService) GetServiceByName(name string) (*services.ServiceDetailView, error) {
@@ -200,6 +201,65 @@ func TestEndpointDestroy_Failure(t *testing.T) {
 	form := strings.NewReader("protocol=https&expose_port=443&destination=http://localhost:8080")
 	req := httptest.NewRequest(http.MethodPost, "/services/my-service/endpoints/delete", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", rec.Code)
+	}
+}
+
+func TestEndpointStore_ValidationError_MissingDestination(t *testing.T) {
+	mockSvc := &mockEndpointService{}
+	ctrl := NewEndpointHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.Validator = newEndpointTestValidator()
+	e.POST("/services/:name/endpoints/new", ctrl.Store)
+
+	form := strings.NewReader("protocol=https&expose_port=443&destination=")
+	req := httptest.NewRequest(http.MethodPost, "/services/my-service/endpoints/new", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestEndpointStore_ValidationError_InvalidProtocol(t *testing.T) {
+	mockSvc := &mockEndpointService{}
+	ctrl := NewEndpointHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.Validator = newEndpointTestValidator()
+	e.POST("/services/:name/endpoints/new", ctrl.Store)
+
+	form := strings.NewReader("protocol=ftp&expose_port=443&destination=http://localhost:8080")
+	req := httptest.NewRequest(http.MethodPost, "/services/my-service/endpoints/new", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestEndpointCreate_TailscaleNotInstalled(t *testing.T) {
+	mockSvc := &mockEndpointService{
+		checkInstalledErr: services.ErrTailscaleNotInstalled,
+	}
+	ctrl := NewEndpointHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.GET("/services/:name/endpoints/new", ctrl.Create)
+
+	req := httptest.NewRequest(http.MethodGet, "/services/my-service/endpoints/new", nil)
 	rec := httptest.NewRecorder()
 	e.ServeHTTP(rec, req)
 

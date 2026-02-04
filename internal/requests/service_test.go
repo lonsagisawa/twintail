@@ -82,6 +82,46 @@ func TestStoreServiceRequest_Validation(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "service name with semicolon",
+			req: StoreServiceRequest{
+				ServiceName: "my-service;rm -rf /",
+				Protocol:    "https",
+				ExposePort:  "443",
+				Destination: "http://localhost:8080",
+			},
+			wantErr: true,
+		},
+		{
+			name: "service name with newline",
+			req: StoreServiceRequest{
+				ServiceName: "my-service\nmalicious",
+				Protocol:    "https",
+				ExposePort:  "443",
+				Destination: "http://localhost:8080",
+			},
+			wantErr: true,
+		},
+		{
+			name: "service name with backtick",
+			req: StoreServiceRequest{
+				ServiceName: "my-service`id`",
+				Protocol:    "https",
+				ExposePort:  "443",
+				Destination: "http://localhost:8080",
+			},
+			wantErr: true,
+		},
+		{
+			name: "service name with space",
+			req: StoreServiceRequest{
+				ServiceName: "my service",
+				Protocol:    "https",
+				ExposePort:  "443",
+				Destination: "http://localhost:8080",
+			},
+			wantErr: true,
+		},
 	}
 
 	for _, tt := range tests {

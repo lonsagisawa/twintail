@@ -26,14 +26,15 @@ func newTestValidator() *testValidator {
 }
 
 type mockTailscaleService struct {
-	services      []services.ServiceView
-	serviceDetail *services.ServiceDetailView
-	advertiseErr  error
-	clearErr      error
+	services          []services.ServiceView
+	serviceDetail     *services.ServiceDetailView
+	advertiseErr      error
+	clearErr          error
+	checkInstalledErr error
 }
 
 func (m *mockTailscaleService) CheckInstalled() error {
-	return nil
+	return m.checkInstalledErr
 }
 
 func (m *mockTailscaleService) GetServeStatus() ([]services.ServiceView, error) {
@@ -307,5 +308,93 @@ func TestDestroy_Failure(t *testing.T) {
 
 	if rec.Code != http.StatusInternalServerError {
 		t.Errorf("expected status 500, got %d", rec.Code)
+	}
+}
+
+func TestStore_ValidationError_MissingServiceName(t *testing.T) {
+	mockSvc := &mockTailscaleService{}
+	ctrl := NewServiceHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.Validator = newTestValidator()
+	form := strings.NewReader("service_name=&protocol=https&expose_port=443&destination=http://localhost:8080")
+	req := httptest.NewRequest(http.MethodPost, "/services/new", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	err := ctrl.Store(c)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestStore_ValidationError_InvalidProtocol(t *testing.T) {
+	mockSvc := &mockTailscaleService{}
+	ctrl := NewServiceHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.Validator = newTestValidator()
+	form := strings.NewReader("service_name=my-service&protocol=ftp&expose_port=443&destination=http://localhost:8080")
+	req := httptest.NewRequest(http.MethodPost, "/services/new", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	err := ctrl.Store(c)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestStore_ValidationError_NonNumericPort(t *testing.T) {
+	mockSvc := &mockTailscaleService{}
+	ctrl := NewServiceHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	e.Validator = newTestValidator()
+	form := strings.NewReader("service_name=my-service&protocol=https&expose_port=abc&destination=http://localhost:8080")
+	req := httptest.NewRequest(http.MethodPost, "/services/new", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	err := ctrl.Store(c)
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", rec.Code)
+	}
+}
+
+func TestCreate_TailscaleNotInstalled(t *testing.T) {
+	mockSvc := &mockTailscaleService{
+		checkInstalledErr: services.ErrTailscaleNotInstalled,
+	}
+	ctrl := NewServiceHandler(mockSvc)
+
+	e := echo.New()
+	e.Renderer = &mockRenderer{}
+	req := httptest.NewRequest(http.MethodGet, "/services/new", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	err := ctrl.Create(c)
+
+	if err != services.ErrTailscaleNotInstalled {
+		t.Errorf("expected ErrTailscaleNotInstalled, got %v", err)
 	}
 }

@@ -840,3 +840,193 @@ func TestCommandError_ErrorWithoutMessage(t *testing.T) {
 		t.Errorf("expected 'underlying error', got '%s'", err.Error())
 	}
 }
+
+func TestGetServeStatus_MultipleServices(t *testing.T) {
+	jsonData := `{
+		"Services": {
+			"svc:web-app": {
+				"Web": {
+					"web.example.com:443": {
+						"Handlers": {
+							"/": {"Proxy": "http://localhost:3000"}
+						}
+					}
+				}
+			},
+			"svc:api-server": {
+				"Web": {
+					"api.example.com:443": {
+						"Handlers": {
+							"/": {"Proxy": "http://localhost:8080"}
+						}
+					}
+				}
+			},
+			"svc:db-proxy": {
+				"Web": {
+					"db.example.com:5432": {
+						"Handlers": {
+							"/": {"Proxy": "localhost:5432"}
+						}
+					}
+				}
+			}
+		}
+	}`
+	mockServeOutput = []byte(jsonData)
+	mockCommandError = nil
+	defer func() {
+		mockServeOutput = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommand()()
+
+	svc := NewTailscaleService()
+	services, err := svc.GetServeStatus()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(services) != 3 {
+		t.Fatalf("expected 3 services, got %d", len(services))
+	}
+	expectedOrder := []string{"api-server", "db-proxy", "web-app"}
+	for i, expected := range expectedOrder {
+		if services[i].Name != expected {
+			t.Errorf("expected services[%d].Name = '%s', got '%s'", i, expected, services[i].Name)
+		}
+	}
+}
+
+func TestGetServeStatus_NullServices(t *testing.T) {
+	jsonData := `{"Services": null}`
+	mockServeOutput = []byte(jsonData)
+	mockCommandError = nil
+	defer func() {
+		mockServeOutput = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommand()()
+
+	svc := NewTailscaleService()
+	services, err := svc.GetServeStatus()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(services) != 0 {
+		t.Fatalf("expected 0 services, got %d", len(services))
+	}
+}
+
+func TestGetServeStatus_EmptyWebHandlers(t *testing.T) {
+	jsonData := `{
+		"Services": {
+			"svc:empty-web": {
+				"Web": {}
+			}
+		}
+	}`
+	mockServeOutput = []byte(jsonData)
+	mockCommandError = nil
+	defer func() {
+		mockServeOutput = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommand()()
+
+	svc := NewTailscaleService()
+	services, err := svc.GetServeStatus()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(services) != 1 {
+		t.Fatalf("expected 1 service, got %d", len(services))
+	}
+	if services[0].Name != "empty-web" {
+		t.Errorf("expected name 'empty-web', got '%s'", services[0].Name)
+	}
+	if services[0].HTTPSUrl != "" {
+		t.Errorf("expected empty HTTPSUrl, got '%s'", services[0].HTTPSUrl)
+	}
+	if services[0].Proxy != "" {
+		t.Errorf("expected empty Proxy, got '%s'", services[0].Proxy)
+	}
+}
+
+func TestGetServeStatus_EmptyHandlers(t *testing.T) {
+	jsonData := `{
+		"Services": {
+			"svc:no-handlers": {
+				"Web": {
+					"example.com:443": {
+						"Handlers": {}
+					}
+				}
+			}
+		}
+	}`
+	mockServeOutput = []byte(jsonData)
+	mockCommandError = nil
+	defer func() {
+		mockServeOutput = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommand()()
+
+	svc := NewTailscaleService()
+	services, err := svc.GetServeStatus()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(services) != 1 {
+		t.Fatalf("expected 1 service, got %d", len(services))
+	}
+	if services[0].Name != "no-handlers" {
+		t.Errorf("expected name 'no-handlers', got '%s'", services[0].Name)
+	}
+	if services[0].Proxy != "" {
+		t.Errorf("expected empty Proxy, got '%s'", services[0].Proxy)
+	}
+}
+
+func TestGetServeStatus_InvalidHostFormat(t *testing.T) {
+	jsonData := `{
+		"Services": {
+			"svc:invalid-host": {
+				"Web": {
+					"example.com": {
+						"Handlers": {
+							"/": {"Proxy": "http://localhost:3000"}
+						}
+					}
+				}
+			}
+		}
+	}`
+	mockServeOutput = []byte(jsonData)
+	mockCommandError = nil
+	defer func() {
+		mockServeOutput = nil
+		mockCommandError = nil
+	}()
+	defer setupMockExecCommand()()
+
+	svc := NewTailscaleService()
+	services, err := svc.GetServeStatus()
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if len(services) != 1 {
+		t.Fatalf("expected 1 service, got %d", len(services))
+	}
+	if services[0].Name != "invalid-host" {
+		t.Errorf("expected name 'invalid-host', got '%s'", services[0].Name)
+	}
+	if services[0].HTTPSUrl != "" {
+		t.Errorf("expected empty HTTPSUrl, got '%s'", services[0].HTTPSUrl)
+	}
+}
