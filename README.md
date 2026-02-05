@@ -47,7 +47,34 @@ make build
 
 Static files are embedded in the binary for production builds.
 
-## Running
+## Installation
+
+After building, install the binary and systemd service:
+
+```bash
+sudo make install
+```
+
+This will:
+- Install the binary to `/usr/local/bin/twintail` (architecture auto-detected)
+- Install the systemd unit file to `/etc/systemd/system/twintail.service`
+
+To start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now twintail
+```
+
+## Uninstallation
+
+```bash
+sudo make uninstall
+```
+
+This will stop the service, disable it, and remove all installed files.
+
+## Running (Manual)
 
 ```bash
 ./twintail-linux-arm64  # For ARM64

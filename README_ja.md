@@ -47,7 +47,34 @@ make build
 
 本番ビルドでは静的ファイルがバイナリに埋め込まれます。
 
-## 実行方法
+## インストール
+
+ビルド後、バイナリとsystemdサービスをインストールします：
+
+```bash
+sudo make install
+```
+
+これにより以下が行われます：
+- バイナリを `/usr/local/bin/twintail` にインストール（アーキテクチャは自動判定）
+- systemdユニットファイルを `/etc/systemd/system/twintail.service` にインストール
+
+サービスを開始するには：
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now twintail
+```
+
+## アンインストール
+
+```bash
+sudo make uninstall
+```
+
+サービスの停止・無効化、およびインストールされたファイルの削除が行われます。
+
+## 実行方法（手動）
 
 ```bash
 ./twintail-linux-arm64  # ARM64の場合

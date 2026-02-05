@@ -1,0 +1,14 @@
+[Unit]
+Description=Twintail - Tailscale Services Dashboard
+After=network.target tailscaled.service
+Wants=tailscaled.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/twintail
+Restart=on-failure
+RestartSec=5
+Environment=PORT=8077
+
+[Install]
+WantedBy=multi-user.target
