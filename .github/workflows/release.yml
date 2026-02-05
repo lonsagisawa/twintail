@@ -1,0 +1,131 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            suffix: linux-amd64
+            deb_arch: amd64
+          - goos: linux
+            goarch: arm64
+            suffix: linux-arm64
+            deb_arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build binary
+        run: |
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+          go build -tags prod -ldflags="-s -w" -o twintail-${{ matrix.suffix }} ./cmd/server
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Build Debian package
+        run: |
+          PKG_DIR="twintail_${{ steps.version.outputs.VERSION }}_${{ matrix.deb_arch }}"
+          mkdir -p "${PKG_DIR}/DEBIAN"
+          mkdir -p "${PKG_DIR}/usr/bin"
+          mkdir -p "${PKG_DIR}/etc/systemd/system"
+
+          cat > "${PKG_DIR}/DEBIAN/control" << EOF
+          Package: twintail
+          Version: ${{ steps.version.outputs.VERSION }}
+          Section: net
+          Priority: optional
+          Architecture: ${{ matrix.deb_arch }}
+          Maintainer: lonsagisawa
+          Description: Tailscale Services Dashboard
+           A web dashboard for managing Tailscale services.
+          EOF
+
+          cp twintail-${{ matrix.suffix }} "${PKG_DIR}/usr/bin/twintail"
+          chmod 755 "${PKG_DIR}/usr/bin/twintail"
+
+          cp twintail.service "${PKG_DIR}/etc/systemd/system/"
+
+          cat > "${PKG_DIR}/DEBIAN/postinst" << 'EOF'
+          #!/bin/sh
+          set -e
+          systemctl daemon-reload
+          echo "Run 'systemctl enable --now twintail' to start the service"
+          EOF
+          chmod 755 "${PKG_DIR}/DEBIAN/postinst"
+
+          cat > "${PKG_DIR}/DEBIAN/prerm" << 'EOF'
+          #!/bin/sh
+          set -e
+          if systemctl is-active --quiet twintail; then
+            systemctl stop twintail
+          fi
+          EOF
+          chmod 755 "${PKG_DIR}/DEBIAN/prerm"
+
+          cat > "${PKG_DIR}/DEBIAN/postrm" << 'EOF'
+          #!/bin/sh
+          set -e
+          if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+            systemctl daemon-reload
+          fi
+          EOF
+          chmod 755 "${PKG_DIR}/DEBIAN/postrm"
+
+          dpkg-deb --build "${PKG_DIR}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.suffix }}
+          path: |
+            twintail-${{ matrix.suffix }}
+            twintail_*.deb
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            twintail-linux-amd64
+            twintail-linux-arm64
+            twintail_*.deb
