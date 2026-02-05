@@ -1,5 +1,7 @@
 # Twintail
 
+[English](README.md) | [日本語](README_ja.md)
+
 Tailscale Services Dashboard - [Tailscale Services](https://tailscale.com/kb/1552/tailscale-services)を管理するWebアプリケーション
 
 > [!WARNING]
