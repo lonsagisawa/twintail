@@ -60,25 +60,36 @@ make build
 twintail/
 ├── assets/
 │   └── css/
-│       └── input.css         # Tailwind CSSのエントリーポイント
+│       └── input.css              # Tailwind CSSのエントリーポイント
+├── cmd/
+│   └── server/                    # アプリケーションエントリーポイント
+├── internal/
+│   ├── config/                    # 設定管理
+│   ├── handlers/                  # HTTPハンドラ
+│   ├── requests/                  # リクエストバリデーション構造体
+│   ├── server/                    # サーバーセットアップ
+│   ├── services/                  # サービス層（Tailscale CLI連携）
+│   ├── validator/                 # カスタムバリデータ
+│   └── views/
+│       └── views/
+│           ├── layouts/
+│           │   └── base.html      # ベースレイアウト
+│           ├── partials/          # 再利用可能なパーシャルテンプレート
+│           ├── index.html         # サービス一覧
+│           ├── show_service.html  # サービス詳細
+│           ├── new_service.html   # サービス作成
+│           ├── confirm_delete.html           # サービス削除確認
+│           ├── new_endpoint.html             # エンドポイント作成
+│           ├── edit_endpoint.html            # エンドポイント編集
+│           ├── confirm_delete_endpoint.html  # エンドポイント削除確認
+│           ├── settings.html                 # 設定ページ
+│           └── tailscale_not_installed.html  # エラーページ
 ├── static/
-│   └── dist/                 # Viteビルド出力（バイナリに埋め込み）
-├── views/
-│   ├── layouts/
-│   │   └── base.html         # ベースレイアウト
-│   ├── index.html            # サービス一覧
-│   ├── show_service.html     # サービス詳細
-│   ├── new_service.html      # サービス作成
-│   ├── confirm_delete.html   # サービス削除確認
-│   ├── new_endpoint.html     # エンドポイント作成
-│   └── confirm_delete_endpoint.html  # エンドポイント削除確認
-├── controllers/              # コントローラ層
-├── services/                 # サービス層（Tailscale CLI連携）
-├── server.go                 # サーバーエントリーポイント
-├── vite.config.ts            # Vite設定
-├── package.json              # Node.js依存関係
-├── Makefile                  # ビルドスクリプト
-└── go.mod/go.sum             # Goモジュール
+│   └── dist/                      # Viteビルド出力（バイナリに埋め込み）
+├── vite.config.ts                 # Vite設定
+├── package.json                   # Node.js依存関係
+├── Makefile                       # ビルドスクリプト
+└── go.mod/go.sum                  # Goモジュール
 ```
 
 ## 開発メモ

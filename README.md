@@ -60,25 +60,36 @@ Access `http://localhost:8077` in your browser.
 twintail/
 ├── assets/
 │   └── css/
-│       └── input.css         # Tailwind CSS entry point
+│       └── input.css              # Tailwind CSS entry point
+├── cmd/
+│   └── server/                    # Application entry point
+├── internal/
+│   ├── config/                    # Configuration management
+│   ├── handlers/                  # HTTP handlers
+│   ├── requests/                  # Request validation structs
+│   ├── server/                    # Server setup
+│   ├── services/                  # Service layer (Tailscale CLI integration)
+│   ├── validator/                 # Custom validators
+│   └── views/
+│       └── views/
+│           ├── layouts/
+│           │   └── base.html      # Base layout
+│           ├── partials/          # Reusable partial templates
+│           ├── index.html         # Service list
+│           ├── show_service.html  # Service details
+│           ├── new_service.html   # Create service
+│           ├── confirm_delete.html           # Delete service confirmation
+│           ├── new_endpoint.html             # Create endpoint
+│           ├── edit_endpoint.html            # Edit endpoint
+│           ├── confirm_delete_endpoint.html  # Delete endpoint confirmation
+│           ├── settings.html                 # Settings page
+│           └── tailscale_not_installed.html  # Error page
 ├── static/
-│   └── dist/                 # Vite build output (embedded in binary)
-├── views/
-│   ├── layouts/
-│   │   └── base.html         # Base layout
-│   ├── index.html            # Service list
-│   ├── show_service.html     # Service details
-│   ├── new_service.html      # Create service
-│   ├── confirm_delete.html   # Delete service confirmation
-│   ├── new_endpoint.html     # Create endpoint
-│   └── confirm_delete_endpoint.html  # Delete endpoint confirmation
-├── controllers/              # Controller layer
-├── services/                 # Service layer (Tailscale CLI integration)
-├── server.go                 # Server entry point
-├── vite.config.ts            # Vite configuration
-├── package.json              # Node.js dependencies
-├── Makefile                  # Build scripts
-└── go.mod/go.sum             # Go modules
+│   └── dist/                      # Vite build output (embedded in binary)
+├── vite.config.ts                 # Vite configuration
+├── package.json                   # Node.js dependencies
+├── Makefile                       # Build scripts
+└── go.mod/go.sum                  # Go modules
 ```
 
 ## Development Notes
