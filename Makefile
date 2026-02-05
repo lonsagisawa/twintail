@@ -45,7 +45,9 @@ test-coverage:
 
 install: $(BINARY)
 	install -Dm755 $(BINARY) $(DESTDIR)$(BINDIR)/twintail
-	install -Dm644 twintail.service $(DESTDIR)$(SYSTEMD_DIR)/twintail.service
+	sed 's|@@BINDIR@@|$(BINDIR)|g' twintail.service > twintail.service.tmp
+	install -Dm644 twintail.service.tmp $(DESTDIR)$(SYSTEMD_DIR)/twintail.service
+	rm -f twintail.service.tmp
 	@echo "Installed twintail to $(DESTDIR)$(BINDIR)/twintail"
 	@echo "Installed systemd unit to $(DESTDIR)$(SYSTEMD_DIR)/twintail.service"
 	@echo "Run 'systemctl daemon-reload && systemctl enable --now twintail' to start"
