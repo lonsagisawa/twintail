@@ -73,7 +73,7 @@ jobs:
           cp twintail-${{ matrix.suffix }} "${PKG_DIR}/usr/bin/twintail"
           chmod 755 "${PKG_DIR}/usr/bin/twintail"
 
-          cp twintail.service "${PKG_DIR}/etc/systemd/system/"
+          sed 's|@@BINDIR@@|/usr/bin|g' twintail.service > "${PKG_DIR}/etc/systemd/system/twintail.service"
 
           cat > "${PKG_DIR}/DEBIAN/postinst" << 'EOF'
           #!/bin/sh
