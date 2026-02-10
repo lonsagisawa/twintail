@@ -10,7 +10,7 @@ type StoreServiceRequest struct {
 	ServiceName string `form:"service_name" validate:"required,excludesall=; \n\r\x60\x00"`
 	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
 	ExposePort  string `form:"expose_port" validate:"required,numeric"`
-	Destination string `form:"destination" validate:"required"`
+	Destination string `form:"destination" validate:"required,excludesall=; \n\r\x60\x00"`
 }
 
 func (r *StoreServiceRequest) FromContext(ctx *echo.Context) error {

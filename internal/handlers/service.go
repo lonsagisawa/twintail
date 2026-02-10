@@ -8,6 +8,14 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+func validateServiceNameParam(ctx *echo.Context) (string, error) {
+	name := ctx.Param("name")
+	if err := requests.ValidateServiceName(name); err != nil {
+		return "", ctx.String(http.StatusBadRequest, "Invalid service name: "+err.Error())
+	}
+	return name, nil
+}
+
 type TailscaleService interface {
 	CheckInstalled() error
 	GetServeStatus() ([]services.ServiceView, error)
@@ -68,7 +76,10 @@ func (h *ServiceHandler) Store(ctx *echo.Context) error {
 }
 
 func (h *ServiceHandler) Show(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	svc, err := h.tailscale.GetServiceByName(name)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, "Failed to get service: "+err.Error())
@@ -82,7 +93,10 @@ func (h *ServiceHandler) Show(ctx *echo.Context) error {
 }
 
 func (h *ServiceHandler) Delete(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	svc, err := h.tailscale.GetServiceByName(name)
 	if err != nil {
 		return ctx.String(http.StatusInternalServerError, "Failed to get service: "+err.Error())
@@ -96,7 +110,10 @@ func (h *ServiceHandler) Delete(ctx *echo.Context) error {
 }
 
 func (h *ServiceHandler) Destroy(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	if err := h.tailscale.ClearService(name); err != nil {
 		return ctx.String(http.StatusInternalServerError, "Failed to delete service: "+err.Error())
 	}

@@ -9,7 +9,7 @@ import (
 type StoreEndpointRequest struct {
 	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
 	ExposePort  string `form:"expose_port" validate:"required,numeric"`
-	Destination string `form:"destination" validate:"required"`
+	Destination string `form:"destination" validate:"required,excludesall=; \n\r\x60\x00"`
 }
 
 func (r *StoreEndpointRequest) FromContext(ctx *echo.Context) error {
@@ -36,9 +36,9 @@ func (r *StoreEndpointRequest) Default() StoreEndpointRequest {
 }
 
 type DestroyEndpointRequest struct {
-	Protocol    string `form:"protocol" validate:"required"`
-	ExposePort  string `form:"expose_port" validate:"required"`
-	Destination string `form:"destination" validate:"required"`
+	Protocol    string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
+	ExposePort  string `form:"expose_port" validate:"required,numeric"`
+	Destination string `form:"destination" validate:"required,excludesall=; \n\r\x60\x00"`
 }
 
 func (r *DestroyEndpointRequest) FromContext(ctx *echo.Context) error {
@@ -60,8 +60,8 @@ func (r *DestroyEndpointRequest) ToParams(serviceName string) services.EndpointP
 type UpdateEndpointRequest struct {
 	Protocol       string `form:"protocol" validate:"required,oneof=https http tcp+tls tcp"`
 	ExposePort     string `form:"expose_port" validate:"required,numeric"`
-	OldDestination string `form:"old_destination" validate:"required"`
-	NewDestination string `form:"new_destination" validate:"required"`
+	OldDestination string `form:"old_destination" validate:"required,excludesall=; \n\r\x60\x00"`
+	NewDestination string `form:"new_destination" validate:"required,excludesall=; \n\r\x60\x00"`
 }
 
 func (r *UpdateEndpointRequest) FromContext(ctx *echo.Context) error {

@@ -30,7 +30,10 @@ func (h *EndpointHandler) Create(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
 		return err
 	}
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	var req requests.StoreEndpointRequest
 	return ctx.Render(http.StatusOK, "new_endpoint.html", map[string]any{
 		"ServiceName": name,
@@ -39,7 +42,10 @@ func (h *EndpointHandler) Create(ctx *echo.Context) error {
 }
 
 func (h *EndpointHandler) Store(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	var req requests.StoreEndpointRequest
 	if err := req.FromContext(ctx); err != nil {
 		return ctx.Render(200, "new_endpoint.html", map[string]any{
@@ -64,7 +70,10 @@ func (h *EndpointHandler) Delete(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
 		return err
 	}
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
 	destination := ctx.QueryParam("destination")
@@ -78,7 +87,10 @@ func (h *EndpointHandler) Delete(ctx *echo.Context) error {
 }
 
 func (h *EndpointHandler) Destroy(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	var req requests.DestroyEndpointRequest
 	if err := req.FromContext(ctx); err != nil {
 		return ctx.String(http.StatusInternalServerError, "Invalid request: "+err.Error())
@@ -100,7 +112,10 @@ func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 	if err := h.tailscale.CheckInstalled(); err != nil {
 		return err
 	}
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	protocol := ctx.QueryParam("protocol")
 	exposePort := ctx.QueryParam("port")
 	destination := ctx.QueryParam("destination")
@@ -117,7 +132,10 @@ func (h *EndpointHandler) Edit(ctx *echo.Context) error {
 }
 
 func (h *EndpointHandler) Update(ctx *echo.Context) error {
-	name := ctx.Param("name")
+	name, err := validateServiceNameParam(ctx)
+	if err != nil {
+		return err
+	}
 	var req requests.UpdateEndpointRequest
 	if err := req.FromContext(ctx); err != nil {
 		return ctx.Render(200, "edit_endpoint.html", map[string]any{
