@@ -1,3 +1,6 @@
+> [!WARNING]
+> This will be abandoned since Tailscale decided to allow only 10 services available for personal user since GA, which is not enough for my usecase.
+
 # Twintail
 
 [English](README.md) | [日本語](README_ja.md)
